@@ -23,13 +23,15 @@ uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 여기서 `AI-assisted TDD`는 Kent Beck이 별도로 정의한 공식 방법론 이름이 아니다. 이 프로젝트가 [Canon TDD](https://newsletter.kentbeck.com/p/canon-tdd)의 흐름을 AI 코딩 에이전트 작업 규칙에 적용한 방식이다.
 
+딩코딩코의 [해설·재현 영상 2:17 구간](https://www.youtube.com/watch?v=AAd8taPTyTM&t=137s)은 Claude 명령으로 `plan.md`의 다음 테스트를 RED, GREEN, REFACTOR, 검증 순서로 처리한다. 영상은 Kent Beck 본인의 발표가 아니며, 이 프로젝트는 영상의 Claude 명령을 복제한 것이 아니라 같은 핵심 규칙을 도구 중립적인 `AGENTS.md`, `plan.md`, Python `pytest`로 옮긴 예제다.
+
 ## 0:50–1:40 — 세 역할
 
 화면의 세 역할을 왼쪽부터 설명한다.
 
-> 첫 번째는 AI Agent입니다. 테스트 목록에서 지금 선택된 행동 하나에 필요한 구현을 제안합니다.
+> 첫 번째는 AI Agent입니다. 사람이 승인한 plan.md에서 지금 선택된 행동 하나에 필요한 구현을 제안합니다.
 >
-> 두 번째는 Human입니다. 어떤 예약 정책이 맞는지 결정하고 테스트를 승인합니다. 요구사항의 책임은 AI에게 넘기지 않습니다.
+> 두 번째는 Human입니다. 어떤 예약 정책이 맞는지 결정하고 테스트를 승인합니다. 영상보다 한 단계 더 명시적인 이 승인 절차는 이 프로젝트가 추가한 거버넌스입니다.
 >
 > 세 번째는 pytest입니다. AI가 “완료했다”고 말하는지는 중요하지 않습니다. 실제 프로세스가 기대한 응답을 내는지를 pytest가 같은 조건으로 반복 판정합니다.
 
@@ -37,6 +39,8 @@ uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 
 ```text
 사람이 승인한 요구사항
+        ↓
+plan.md의 다음 테스트 하나
         ↓
 실패하는 테스트 한 개
         ↓
@@ -48,12 +52,15 @@ focused pytest → full pytest
 ```
 
 - `AGENTS.md`: AI가 따라야 할 작업 규칙
+- `plan.md`: 승인된 테스트 목록과 현재 진행 상태
 - `tests/`: 요구사항을 실행 가능한 계약으로 고정
 - `pytest` 종료 코드: 자동화된 완료 판정
 
 ## 1:40–3:10 — RED, GREEN, REFACTOR
 
 화면 왼쪽의 세 카드를 가리킨다.
+
+`VIDEO 2:17` 카드를 누르면 영상에서 전체 사이클, 개별 RED/GREEN/REFACTOR, 구조 변경 전용 tidy, 테스트 검증과 커밋 규칙을 설명하는 지점이 열린다.
 
 > RED에서는 테스트를 먼저 작성합니다. 예를 들어 같은 방의 예약 시간이 겹치면 두 번째 요청은 409여야 한다고 정했습니다. 정책이 없던 시점에는 실제 201이 반환되어 테스트가 실패했습니다.
 >
@@ -62,6 +69,8 @@ focused pytest → full pytest
 > GREEN에서는 테스트를 지우거나 기대값을 바꾸지 않습니다. 두 시간 구간이 실제로 교차할 때만 409를 반환하는 최소 조건을 넣었습니다.
 >
 > 전체 테스트가 통과한 뒤에만 REFACTOR를 합니다. 이 단계에서는 이름과 중복을 정리할 수 있지만 새 동작은 추가하지 않습니다.
+
+이 프로젝트에서는 영상과 Kent Beck의 Tidy First 원칙에 맞춰 행동 변경과 구조 변경을 같은 단계나 커밋에 섞지 않는다.
 
 실제 사이클을 Git Bash에서 확인하려면 다음 명령을 사용한다.
 
@@ -119,7 +128,7 @@ uv run pytest
 uv run ruff check .
 ```
 
-> 현재 전체 테스트 9개가 통과하고 정적 검사도 통과합니다. 이 출력이 현재 작업의 완료 증거입니다. AI의 설명은 보조 자료이고, 재현 가능한 명령 결과가 품질 게이트입니다.
+> 현재 전체 테스트 10개가 통과하고 정적 검사도 통과합니다. 이 출력이 현재 작업의 완료 증거입니다. AI의 설명은 보조 자료이고, 재현 가능한 명령 결과가 품질 게이트입니다.
 
 ## 6:40–7:20 — 결론과 확장
 
@@ -128,6 +137,8 @@ uv run ruff check .
 > 이 구조는 지금은 로컬 작업 규칙이지만 팀에서는 같은 `uv run pytest`와 `uv run ruff check .`를 CI의 필수 체크로 올릴 수 있습니다. 그러면 AI가 만든 변경도 테스트를 통과하지 않으면 병합되지 않습니다.
 >
 > 결론적으로 AI는 판단 기준이 아니라 구현 가속기이고, 테스트와 리뷰가 통제 장치입니다.
+
+영상의 전체 사이클 자동화는 AI가 요구사항을 정한다는 뜻이 아니다. 사람이 승인한 계획의 다음 항목을 순서대로 실행한다는 뜻이며, 올바른 설계인지 판단하는 책임은 계속 사람에게 있다.
 
 이 프로젝트가 증명하지 않는 것도 분명히 말한다.
 
@@ -154,9 +165,18 @@ AI가 초안을 제안할 수는 있지만 정책과 기대 결과는 사람이 
 
 필수는 아니다. 저장소 규칙, 테스트 명령, CI 게이트만으로 시작할 수 있다. 이 프로젝트도 별도 MCP나 런타임 AI SDK 없이 그 최소 구조를 보여준다.
 
+## 선택 부록 — mutation testing 30초
+
+> 테스트가 있다고 해서 그 테스트가 반드시 결함을 잘 찾는 것은 아닙니다. mutation testing은 `<`를 `<=`처럼 조금 바꾸고 테스트가 실패하는지 확인합니다. 현재 프로젝트에서는 이 변경이 인접 예약을 잘못 막으며 경계 테스트가 이를 발견합니다. mutmut는 AI 기능이 아니라 TDD 뒤에서 테스트 품질을 감사하는 선택 도구입니다. 다만 native Windows를 지원하지 않아 이번 라이브 실행에서는 제외했습니다.
+
+자세한 설명은 `docs/OPTIONAL_MUTATION.md`를 사용한다.
+
 ## 참고 자료
 
 - [Kent Beck, Canon TDD](https://newsletter.kentbeck.com/p/canon-tdd)
+- [Kent Beck, Augmented Coding: Beyond the Vibes](https://newsletter.kentbeck.com/p/augmented-coding-beyond-the-vibes)
+- [Kent Beck BPlusTree3 CLAUDE.md](https://github.com/KentBeck/BPlusTree3/blob/ca80e4d85a99cd0af2effe717f709d43e80403bc/rust/docs/CLAUDE.md)
+- [딩코딩코 해설·재현 영상, 2:17부터](https://www.youtube.com/watch?v=AAd8taPTyTM&t=137s)
 - [FastAPI 공식 Testing 문서](https://fastapi.tiangolo.com/tutorial/testing/)
 - [pytest 공식 문서](https://docs.pytest.org/en/stable/)
 - [uv 공식 프로젝트 가이드](https://docs.astral.sh/uv/guides/projects/)

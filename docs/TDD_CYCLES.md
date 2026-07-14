@@ -123,6 +123,21 @@ uv run pytest
 
 구현 완료 후 실제 결과는 focused `1 passed`, 전체 `9 passed`였다.
 
+## Cycle 8 — 영상과 AI-TDD 흐름 연결
+
+- Test first: `test_presentation_connects_video_to_ai_tdd_workflow`
+- 계약: 발표 화면이 사용자 지정 영상의 2:17 구간과 `계획 → RED → GREEN → REFACTOR → 검증` 흐름을 연결한다.
+- 유효한 RED: 발표 HTML에 영상 ID가 없어 assertion이 실패했다.
+- Minimal GREEN: TDD 흐름 영역에 영상 2:17 링크와 한 줄 워크플로우 카드를 추가했다.
+- GREEN 후 refactor: 역할 설명에 승인된 `plan.md`, 사람의 diff·설계 검토, 행동과 구조 변경 분리를 명시했다.
+
+```bash
+uv run pytest tests/test_presentation.py::test_presentation_connects_video_to_ai_tdd_workflow
+uv run pytest
+```
+
+구현 완료 후 실제 결과는 focused `1 passed`, 전체 `10 passed`였다.
+
 ## 최종 검증
 
 ```bash
@@ -131,4 +146,15 @@ uv run pytest
 ```
 
 - 예약 API suite: `7 passed`
-- 최종 전체 suite: `9 passed`
+- 최종 전체 suite: `10 passed`
+
+## 환경 설정 정리 — RED 아님
+
+Pyright에서 FastAPI와 Pydantic import 5개를 찾지 못했지만 제품 동작에 도달하지 못한 환경 문제이므로 TDD의 RED로 기록하지 않았다. 제품 코드는 수정하지 않고 uv의 `.venv`를 가리키는 Pyright 및 VS Code 설정만 추가했다.
+
+```bash
+uvx pyright
+uv run pytest
+```
+
+설정 후 결과는 Pyright `0 errors`, pytest `10 passed`다.

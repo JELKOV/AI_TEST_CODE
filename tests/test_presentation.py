@@ -18,3 +18,12 @@ def test_presentation_links_to_primary_sources() -> None:
     assert "https://newsletter.kentbeck.com/p/canon-tdd" in response.text
     assert "https://fastapi.tiangolo.com/tutorial/testing/" in response.text
     assert 'href="/docs"' in response.text
+
+
+def test_presentation_connects_video_to_ai_tdd_workflow() -> None:
+    with TestClient(create_app()) as client:
+        response = client.get("/")
+
+    assert "AAd8taPTyTM" in response.text
+    assert "t=137s" in response.text
+    assert "계획 → RED → GREEN → REFACTOR → 검증" in response.text
