@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI-assisted TDD Reservation Lab</title>
+  <title>AI-assisted TDD AdMarket Contract Lab</title>
   <style>
     :root {
       color-scheme: dark;
@@ -653,14 +653,14 @@
           <article class="flow-card red">
             <span class="flow-number">01</span>
             <h3>RED (실패 확인)</h3>
-            <p>겹치는 예약은 409여야 한다는 테스트를 먼저 쓰고, 정책 부재로 실패하는지 확인한다.</p>
-            <code>assert overlapping.status_code == 409</code>
+            <p>지급 비율 합계가 100이 아니면 422여야 한다는 테스트를 먼저 쓰고 실제 200 응답을 확인한다.</p>
+            <code>assert response.status_code == 422</code>
           </article>
           <article class="flow-card green">
             <span class="flow-number">02</span>
             <h3>GREEN (최소 구현)</h3>
-            <p>같은 방에서 두 시간 구간이 교차할 때만 거절하는 최소 조건을 구현한다.</p>
-            <code>new.start &lt; saved.end and saved.start &lt; new.end</code>
+            <p>선금·중도금·잔금의 합계가 정확히 100인지 확인하는 최소 규칙만 구현한다.</p>
+            <code>advance + interim + final == 100</code>
           </article>
           <article class="flow-card refactor">
             <span class="flow-number">03</span>
@@ -675,23 +675,23 @@
         <div class="section-heading">
           <div>
             <p class="section-kicker">Live API Lab (실시간 API 실습)</p>
-            <h2 id="lab-title">예약 정책을 직접 실행해 확인</h2>
+            <h2 id="lab-title">AdMarket Contract Payment Terms</h2>
           </div>
-          <p>각 실행은 새로운 room_id를 사용하므로 이전 시나리오의 상태와 충돌하지 않습니다.</p>
+          <p>실제 AdMarket 계약 테스트에서 DB·인증을 덜어내고 지급조건 업무 규칙만 실행합니다.</p>
         </div>
 
-        <div class="scenario-buttons" role="group" aria-label="예약 시나리오 선택">
-          <button class="scenario-button" type="button" data-scenario="normal" aria-pressed="false">
-            <span class="scenario-title">Create (정상 예약)</span>
-            <span class="scenario-meta">Expected (기대): 201 CREATED</span>
+        <div class="scenario-buttons" role="group" aria-label="계약 지급조건 시나리오 선택">
+          <button class="scenario-button" type="button" data-scenario="valid" aria-pressed="false">
+            <span class="scenario-title">Valid Terms (정상 지급조건)</span>
+            <span class="scenario-meta">Expected (기대): 200 OK</span>
           </button>
-          <button class="scenario-button" type="button" data-scenario="overlap" aria-pressed="false">
-            <span class="scenario-title">Conflict (겹침 거절)</span>
-            <span class="scenario-meta">Expected (기대): 201 → 409</span>
+          <button class="scenario-button" type="button" data-scenario="invalid-total" aria-pressed="false">
+            <span class="scenario-title">Invalid Total (합계 오류)</span>
+            <span class="scenario-meta">Expected (기대): 422</span>
           </button>
-          <button class="scenario-button" type="button" data-scenario="adjacent" aria-pressed="false">
-            <span class="scenario-title">Boundary (경계 인접 허용)</span>
-            <span class="scenario-meta">Expected (기대): 201 → 201</span>
+          <button class="scenario-button" type="button" data-scenario="invalid-order" aria-pressed="false">
+            <span class="scenario-title">Invalid Order (순서 오류)</span>
+            <span class="scenario-meta">Expected (기대): 422</span>
           </button>
         </div>
 
@@ -720,7 +720,7 @@
           <section class="result-panel request" aria-labelledby="request-label">
             <div class="panel-head">
               <span class="panel-label" id="request-label">Request (요청)</span>
-              <span class="method">POST /reservations</span>
+              <span class="method">POST /contracts/payment-terms/validate</span>
             </div>
             <pre id="request-output">시나리오 버튼을 선택하면 요청 JSON이 표시됩니다.</pre>
           </section>
@@ -746,66 +746,45 @@
     const statusScenario = document.querySelector("#status-scenario");
     const statusExpected = document.querySelector("#status-expected");
     const statusActual = document.querySelector("#status-actual");
-    let runSequence = 0;
 
     const scenarios = {
-      normal: {
-        label: "Create (정상 예약)",
-        expected: [201],
-        requests: (roomId) => [
-          {
-            room_id: roomId,
-            customer_name: "정상 예약 고객",
-            starts_at: "2026-07-15T10:00:00+09:00",
-            ends_at: "2026-07-15T11:00:00+09:00"
-          }
-        ]
+      valid: {
+        label: "Valid Terms (정상 지급조건)",
+        expected: 200,
+        body: {
+          advance_payment_percentage: 30,
+          interim_payment_percentage: 30,
+          final_payment_percentage: 40,
+          advance_timing: "CONTRACT_SIGNED",
+          interim_timing: "PLAN_CONFIRMED",
+          final_timing: "FINAL_DELIVERY"
+        }
       },
-      overlap: {
-        label: "Conflict (겹침 거절)",
-        expected: [201, 409],
-        requests: (roomId) => [
-          {
-            room_id: roomId,
-            customer_name: "기준 예약 고객",
-            starts_at: "2026-07-15T10:00:00+09:00",
-            ends_at: "2026-07-15T11:00:00+09:00"
-          },
-          {
-            room_id: roomId,
-            customer_name: "겹침 예약 고객",
-            starts_at: "2026-07-15T10:30:00+09:00",
-            ends_at: "2026-07-15T11:30:00+09:00"
-          }
-        ]
+      "invalid-total": {
+        label: "Invalid Total (합계 오류)",
+        expected: 422,
+        body: {
+          advance_payment_percentage: 20,
+          interim_payment_percentage: 30,
+          final_payment_percentage: 40,
+          advance_timing: "CONTRACT_SIGNED",
+          interim_timing: "PLAN_CONFIRMED",
+          final_timing: "FINAL_DELIVERY"
+        }
       },
-      adjacent: {
-        label: "Boundary (경계 인접 허용)",
-        expected: [201, 201],
-        requests: (roomId) => [
-          {
-            room_id: roomId,
-            customer_name: "기준 예약 고객",
-            starts_at: "2026-07-15T10:00:00+09:00",
-            ends_at: "2026-07-15T11:00:00+09:00"
-          },
-          {
-            room_id: roomId,
-            customer_name: "인접 예약 고객",
-            starts_at: "2026-07-15T11:00:00+09:00",
-            ends_at: "2026-07-15T12:00:00+09:00"
-          }
-        ]
+      "invalid-order": {
+        label: "Invalid Order (순서 오류)",
+        expected: 422,
+        body: {
+          advance_payment_percentage: 30,
+          interim_payment_percentage: 30,
+          final_payment_percentage: 40,
+          advance_timing: "PLAN_CONFIRMED",
+          interim_timing: "CONTRACT_SIGNED",
+          final_timing: "FINAL_DELIVERY"
+        }
       }
     };
-
-    function createRoomId() {
-      runSequence += 1;
-      const randomToken = typeof crypto !== "undefined" && crypto.randomUUID
-        ? crypto.randomUUID().slice(0, 8)
-        : Math.random().toString(36).slice(2, 10);
-      return `demo-${Date.now().toString(36)}-${runSequence}-${randomToken}`;
-    }
 
     function setRunningState(activeButton, scenario) {
       buttons.forEach((button) => {
@@ -815,7 +794,7 @@
       statusBadge.className = "status-badge running";
       statusBadge.textContent = "RUNNING (실행 중)";
       statusScenario.textContent = scenario.label;
-      statusExpected.textContent = scenario.expected.join(" → ");
+      statusExpected.textContent = String(scenario.expected);
       statusActual.textContent = "요청 중";
       responseMethod.textContent = "HTTP ...";
       responseOutput.textContent = "API 요청을 실행하고 있습니다.";
@@ -827,15 +806,12 @@
       });
     }
 
-    function formatRequests(requests) {
-      const steps = requests.map((body, index) => ({
-        step: index + 1,
-        purpose: index === 0 && requests.length > 1 ? "setup (기준 예약)" : "verify (검증 요청)",
+    function formatRequest(body) {
+      return JSON.stringify({
         method: "POST",
-        path: "/reservations",
+        path: "/contracts/payment-terms/validate",
         body
-      }));
-      return JSON.stringify(steps, null, 2);
+      }, null, 2);
     }
 
     async function readResponse(response) {
@@ -852,34 +828,26 @@
 
     async function runScenario(activeButton) {
       const scenario = scenarios[activeButton.dataset.scenario];
-      const requests = scenario.requests(createRoomId());
-      const exchanges = [];
       setRunningState(activeButton, scenario);
-      requestOutput.textContent = formatRequests(requests);
+      requestOutput.textContent = formatRequest(scenario.body);
 
       try {
-        for (const [index, body] of requests.entries()) {
-          const response = await fetch("/reservations", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(body)
-          });
-          exchanges.push({
-            step: index + 1,
-            status: response.status,
-            status_text: response.statusText,
-            body: await readResponse(response)
-          });
-        }
-
-        const actual = exchanges.map((exchange) => exchange.status);
-        const passed = actual.length === scenario.expected.length
-          && actual.every((status, index) => status === scenario.expected[index]);
+        const response = await fetch("/contracts/payment-terms/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(scenario.body)
+        });
+        const exchange = {
+          status: response.status,
+          status_text: response.statusText,
+          body: await readResponse(response)
+        };
+        const passed = response.status === scenario.expected;
         statusBadge.className = `status-badge ${passed ? "pass" : "fail"}`;
         statusBadge.textContent = passed ? "PASS (기대 일치)" : "FAIL (기대 불일치)";
-        statusActual.textContent = actual.join(" → ");
-        responseMethod.textContent = `HTTP ${actual.join(" → ")}`;
-        responseOutput.textContent = JSON.stringify(exchanges, null, 2);
+        statusActual.textContent = String(response.status);
+        responseMethod.textContent = `HTTP ${response.status}`;
+        responseOutput.textContent = JSON.stringify(exchange, null, 2);
       } catch (error) {
         statusBadge.className = "status-badge fail";
         statusBadge.textContent = "ERROR (연결 실패)";

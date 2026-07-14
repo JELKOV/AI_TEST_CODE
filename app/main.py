@@ -1,62 +1,71 @@
-from datetime import datetime
+from enum import StrEnum
 from pathlib import Path
 
-from fastapi import FastAPI, HTTPException, status
+from fastapi import FastAPI
 from fastapi.responses import FileResponse
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, model_validator
 
 
 PRESENTATION_PATH = Path(__file__).with_name("presentation.html")
 
 
-class ReservationCreate(BaseModel):
-    room_id: str = Field(min_length=1)
-    customer_name: str
-    starts_at: datetime
-    ends_at: datetime
+class ContractPaymentTiming(StrEnum):
+    CONTRACT_SIGNED = "CONTRACT_SIGNED"
+    PLAN_CONFIRMED = "PLAN_CONFIRMED"
+    SHOOTING_COMPLETED = "SHOOTING_COMPLETED"
+    FINAL_DELIVERY = "FINAL_DELIVERY"
 
 
-class Reservation(ReservationCreate):
-    id: int
+class ContractPaymentTerms(BaseModel):
+    advance_payment_percentage: int
+    interim_payment_percentage: int
+    final_payment_percentage: int
+    advance_timing: ContractPaymentTiming
+    interim_timing: ContractPaymentTiming
+    final_timing: ContractPaymentTiming
+
+    @model_validator(mode="after")
+    def validate_payment_terms(self) -> "ContractPaymentTerms":
+        total = (
+            self.advance_payment_percentage
+            + self.interim_payment_percentage
+            + self.final_payment_percentage
+        )
+        if total != 100:
+            raise ValueError("payment percentages must sum to 100")
+
+        timings = [self.advance_timing, self.interim_timing, self.final_timing]
+        if len(set(timings)) != len(timings):
+            raise ValueError("payment timing values must be unique")
+
+        timing_order = {
+            ContractPaymentTiming.CONTRACT_SIGNED: 0,
+            ContractPaymentTiming.PLAN_CONFIRMED: 1,
+            ContractPaymentTiming.SHOOTING_COMPLETED: 2,
+            ContractPaymentTiming.FINAL_DELIVERY: 3,
+        }
+        timings = [self.advance_timing, self.interim_timing, self.final_timing]
+        positions = [timing_order[timing] for timing in timings]
+        if positions != sorted(positions):
+            raise ValueError(
+                "advance payment timing must not be later than interim or final"
+            )
+        return self
 
 
 def create_app() -> FastAPI:
-    application = FastAPI(title="AI-TDD Reservation API")
-    reservations: list[Reservation] = []
+    application = FastAPI(title="AI-TDD AdMarket Contract API")
 
     @application.get("/", include_in_schema=False)
     def presentation() -> FileResponse:
         return FileResponse(PRESENTATION_PATH)
 
     @application.post(
-        "/reservations",
-        response_model=Reservation,
-        status_code=status.HTTP_201_CREATED,
+        "/contracts/payment-terms/validate",
+        response_model=ContractPaymentTerms,
     )
-    def create_reservation(payload: ReservationCreate) -> Reservation:
-        if payload.ends_at <= payload.starts_at:
-            raise HTTPException(
-                status_code=status.HTTP_422_UNPROCESSABLE_CONTENT,
-                detail="end_must_be_after_start",
-            )
-        reservation = Reservation(id=len(reservations) + 1, **payload.model_dump())
-        has_conflict = any(
-            current.room_id == reservation.room_id
-            and reservation.starts_at < current.ends_at
-            and current.starts_at < reservation.ends_at
-            for current in reservations
-        )
-        if has_conflict:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail="reservation_conflict",
-            )
-        reservations.append(reservation)
-        return reservation
-
-    @application.get("/reservations", response_model=list[Reservation])
-    def list_reservations() -> list[Reservation]:
-        return reservations
+    def validate_contract_payment_terms(payload: ContractPaymentTerms) -> ContractPaymentTerms:
+        return payload
 
     return application
 

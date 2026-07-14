@@ -1,160 +1,113 @@
 # AI-TDD 실제 사이클 기록
 
-이 문서는 발표용 예약 API를 테스트 하나씩 확장하며 확인한 RED와 GREEN만 기록한다.
-명령은 프로젝트 루트의 Git Bash에서 실행하며 모두 `uv run`을 사용한다.
+실제 AdMarket의 계약 지급조건 테스트를 발표용 FastAPI에 옮기며 확인한 RED와
+GREEN 증거다. 명령은 프로젝트 루트의 Git Bash에서 실행한다.
 
-`ModuleNotFoundError`처럼 애플리케이션 동작에 도달하지 못한 환경·임포트 실패는 RED가 아니다.
-환경을 복구한 뒤, 새 테스트가 기대한 동작 차이로 실패한 실행만 유효한 RED로 사용했다.
+환경·문법·import 실패는 RED로 인정하지 않았다. 아래 RED는 모두 구현되지 않은
+HTTP 행동 때문에 기대 status와 실제 status가 달랐던 실패다.
 
-## Cycle 1 — 예약 생성
+## Cycle 1 — 정상 계약 지급조건
 
-- Test first: `test_create_reservation`
-- 계약: `POST /reservations`가 생성된 예약과 `201`을 반환한다.
-- 유효한 RED: 기대 `201`, 실제 `404`
-- Minimal GREEN: `POST /reservations`와 응답 모델만 추가해 `id`와 예약을 반환했다.
+- Test first: `test_accepts_valid_contract_payment_terms`
+- 계약: 30/30/40 비율과 정상 순서의 지급 시점은 `200`과 입력 계약을 반환한다.
+- RED: 기대 `200`, 실제 `404`
+- GREEN: 지급 시점 enum, 입력 모델, 검증 API 경로만 추가
+- 결과: focused `1 passed`, full suite `11 passed`
 
-```bash
-uv run pytest tests/test_reservations.py::test_create_reservation
+~~~bash
+uv run pytest tests/test_contract_payment_terms.py::test_accepts_valid_contract_payment_terms -vv
 uv run pytest
-```
+~~~
 
-Focused GREEN은 `1 passed`로 확인했다.
+## Cycle 2 — 지급 비율 합계
 
-## Cycle 2 — 종료 시간 검증
+- Test first: `test_rejects_payment_percentage_sum_not_100`
+- 계약: 선금·중도금·잔금 비율의 합계가 100이 아니면 `422`
+- RED: 기대 `422`, 실제 `200`
+- GREEN: 세 비율을 더해 100인지 확인하는 validator만 추가
+- 결과: focused `1 passed`, full suite `12 passed`
 
-- Test first: `test_rejects_end_time_not_after_start_time`
-- 계약: `ends_at <= starts_at`이면 `422`와 `end_must_be_after_start`를 반환한다.
-- 유효한 RED: 기대 `422`, 실제 `201`
-- Minimal GREEN: 시간 비교 한 번과 `HTTPException`만 추가했다.
-- GREEN 후 refactor: 동작을 바꾸지 않고 deprecated
-  `status.HTTP_422_UNPROCESSABLE_ENTITY`를
-  `status.HTTP_422_UNPROCESSABLE_CONTENT`로 교체했다.
-
-```bash
-uv run pytest tests/test_reservations.py::test_rejects_end_time_not_after_start_time
+~~~bash
+uv run pytest tests/test_contract_payment_terms.py::test_rejects_payment_percentage_sum_not_100 -vv
 uv run pytest
-```
+~~~
 
-Focused GREEN과 refactor 후 재실행은 각각 `1 passed`로 확인했다.
+## Cycle 3 — 지급 시점 중복
 
-## Cycle 3 — 같은 방의 시간 충돌
+- Test first: `test_rejects_duplicate_payment_timings`
+- 계약: 같은 지급 시점을 두 단계에 중복 지정하면 `422`
+- RED: 기대 `422`, 실제 `200`
+- GREEN: 세 지급 시점의 유일성 검사만 추가
+- 결과: focused `1 passed`, full suite `13 passed`
 
-- Test first: `test_rejects_overlapping_reservation_for_same_room`
-- 계약: 같은 `room_id`의 시간이 겹치면 `409`와 `reservation_conflict`를 반환한다.
-- 유효한 RED: 기대 `409`, 실제 `201`
-- Minimal GREEN: 기존 예약을 순회하며 같은 방이고 두 구간이 겹치는 경우만 거절했다.
-
-```bash
-uv run pytest tests/test_reservations.py::test_rejects_overlapping_reservation_for_same_room
+~~~bash
+uv run pytest tests/test_contract_payment_terms.py::test_rejects_duplicate_payment_timings -vv
 uv run pytest
-```
+~~~
 
-Focused GREEN은 `1 passed`로 확인했다.
+## Cycle 4 — 지급 시점 순서
 
-## Cycle 4 — 빈 room_id 거절
+- Test first: `test_rejects_reversed_payment_timing_order`
+- 계약: 선금 지급 시점이 중도금보다 늦으면 `422`
+- RED: 기대 `422`, 실제 `200`
+- GREEN: 계약 체결부터 최종 납품까지의 순서 비교만 추가
+- 결과: focused `1 passed`, full suite `14 passed`
 
-- Test first: `test_rejects_empty_room_id`
-- 계약: 빈 `room_id`는 `422`로 거절한다.
-- 유효한 RED: 기대 `422`, 실제 `201`
-- Minimal GREEN: 입력 모델의 `room_id`에 `Field(min_length=1)`만 추가했다.
-
-```bash
-uv run pytest tests/test_reservations.py::test_rejects_empty_room_id
+~~~bash
+uv run pytest tests/test_contract_payment_terms.py::test_rejects_reversed_payment_timing_order -vv
 uv run pytest
-```
+~~~
 
-Focused GREEN은 `1 passed`로 확인했다.
+## Cycle 5 — 실제 API 발표 화면
 
-## Cycle 5 — 예약 목록 조회
+- Test first: `test_presentation_runs_admarket_contract_payment_scenarios`
+- 계약: 화면에서 정상·합계 오류·순서 오류와 실제 API 경로를 확인
+- RED: 기존 화면에 AdMarket 계약 문구와 API 경로가 없음
+- GREEN: 예약 시나리오를 단일 요청 기반 지급조건 시나리오 3개로 교체
+- 결과: focused `1 passed`, full suite `15 passed`
 
-- Test first: `test_lists_created_reservations`
-- 계약: `GET /reservations`가 생성된 예약 목록과 `200`을 반환한다.
-- 유효한 RED: 기대 `200`, 실제 `405`
-- Minimal GREEN: 기존 인메모리 목록을 그대로 반환하는 GET 경로만 추가했다.
-
-```bash
-uv run pytest tests/test_reservations.py::test_lists_created_reservations
+~~~bash
+uv run pytest tests/test_presentation.py::test_presentation_runs_admarket_contract_payment_scenarios -vv
 uv run pytest
-```
+~~~
 
-Focused GREEN은 `1 passed`로 확인했다.
+## Cycle 6 — 제품 표면 교체
 
-## 일반화된 충돌 로직의 계약 고정
+- Test first: `test_openapi_exposes_only_contract_demo_product_route`
+- 계약: OpenAPI에는 지급조건 경로만 있고 이전 예약 경로는 없음
+- RED: `/reservations`가 OpenAPI paths에 남음
+- GREEN: 예약 모델·라우트·테스트를 제거하고 API 제목을 계약 데모로 변경
+- 결과: focused `1 passed`, 교체 후 full suite `9 passed`
 
-다음 두 테스트는 새 구현을 끌어낸 RED-GREEN 사이클이 아니다. Cycle 3의 일반화된
-구간 비교가 이미 통과시킨 동작을 이후 변경으로부터 보호하는 계약 고정 테스트다.
-
-- 같은 방의 인접 예약은 허용한다.
-- 다른 방이라면 시간이 겹쳐도 허용한다.
-
-```bash
-uv run pytest tests/test_reservations.py::test_allows_adjacent_reservation_for_same_room tests/test_reservations.py::test_allows_overlapping_time_for_different_room
-uv run pytest tests/test_reservations.py
-```
-
-실제 결과는 각각 `2 passed`, `7 passed`였다.
-
-## Cycle 6 — 발표 화면 제공
-
-- Test first: `test_serves_presentation_lab`
-- 계약: `GET /`가 `200`과 발표 핵심 문구를 포함한 HTML을 반환한다.
-- 유효한 RED: 기대 `200`, 실제 `404`
-- Minimal GREEN: 발표 HTML 경로와 `FileResponse`를 사용하는 root 경로만 추가했다.
-
-```bash
-uv run pytest tests/test_presentation.py::test_serves_presentation_lab
+~~~bash
+uv run pytest tests/test_contract_payment_terms.py::test_openapi_exposes_only_contract_demo_product_route -vv
 uv run pytest
-```
+~~~
 
-구현 완료 후 실제 결과는 focused `1 passed`, 당시 전체 `8 passed`였다.
+## 현재 재현 명령
 
-## Cycle 7 — 발표 근거 링크
-
-- Test first: `test_presentation_links_to_primary_sources`
-- 계약: 발표 화면에 Canon TDD, FastAPI Testing, `/docs` 링크가 모두 존재한다.
-- 유효한 RED: Canon TDD 링크가 HTML에 없어 assertion이 실패했다.
-- Minimal GREEN: 기존 `/docs` 링크는 유지하고 Canon TDD와 FastAPI Testing 링크만 추가했다.
-- GREEN 후 refactor: 중복된 근거 링크를 제거하고 TDD 흐름 옆 한 곳에만 남겼다.
-
-```bash
-uv run pytest tests/test_presentation.py::test_presentation_links_to_primary_sources
+~~~bash
+uv run pytest tests/test_contract_payment_terms.py -vv
 uv run pytest
-```
-
-구현 완료 후 실제 결과는 focused `1 passed`, 전체 `9 passed`였다.
-
-## Cycle 8 — 영상과 AI-TDD 흐름 연결
-
-- Test first: `test_presentation_connects_video_to_ai_tdd_workflow`
-- 계약: 발표 화면이 사용자 지정 영상의 2:17 구간과 `계획 → RED → GREEN → REFACTOR → 검증` 흐름을 연결한다.
-- 유효한 RED: 발표 HTML에 영상 ID가 없어 assertion이 실패했다.
-- Minimal GREEN: TDD 흐름 영역에 영상 2:17 링크와 한 줄 워크플로우 카드를 추가했다.
-- GREEN 후 refactor: 역할 설명에 승인된 `plan.md`, 사람의 diff·설계 검토, 행동과 구조 변경 분리를 명시했다.
-
-```bash
-uv run pytest tests/test_presentation.py::test_presentation_connects_video_to_ai_tdd_workflow
-uv run pytest
-```
-
-구현 완료 후 실제 결과는 focused `1 passed`, 전체 `10 passed`였다.
-
-## 최종 검증
-
-```bash
-uv run pytest tests/test_reservations.py
-uv run pytest
-```
-
-- 예약 API suite: `7 passed`
-- 최종 전체 suite: `10 passed`
-
-## 환경 설정 정리 — RED 아님
-
-Pyright에서 FastAPI와 Pydantic import 5개를 찾지 못했지만 제품 동작에 도달하지 못한 환경 문제이므로 TDD의 RED로 기록하지 않았다. 제품 코드는 수정하지 않고 uv의 `.venv`를 가리키는 Pyright 및 VS Code 설정만 추가했다.
-
-```bash
+uv run ruff check .
 uvx pyright
-uv run pytest
-```
+~~~
 
-설정 후 결과는 Pyright `0 errors`, pytest `10 passed`다.
+과거 사이클의 full suite 개수가 현재보다 큰 이유는 제거 대상이던 예약 테스트가
+당시 함께 실행되었기 때문이다. 최종 제품 표면 교체 후 현재 suite는 9개다.
+
+## REFACTOR 증거
+
+모든 테스트가 GREEN인 상태에서 세 validator를 원본 `PaymentTermsCommand`와 같은
+하나의 정책 검증 흐름으로 합쳤다. 새 동작이나 테스트 변경은 없었고 중복된
+`timings` 계산과 decorator만 제거했다.
+
+~~~bash
+uv run pytest tests/test_contract_payment_terms.py -vv
+uv run pytest
+uv run ruff check .
+uvx pyright
+~~~
+
+결과는 focused `5 passed`, full suite `9 passed`, Ruff `All checks passed`,
+Pyright `0 errors, 0 warnings`다.
