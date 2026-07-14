@@ -211,6 +211,22 @@ def test_presentation_maps_three_api_cases_to_test_payloads() -> None:
     with TestClient(create_app()) as client:
         response = client.get("/")
 
+    lab = response.text.split('id="lab"', maxsplit=1)[1].split(
+        'id="adoption"', maxsplit=1
+    )[0]
+
+    assert "LIVE TDD · INITIAL STATE" in lab
+    assert "현재 실패를 AI에게 어떻게 요청할까?" in lab
+    assert "Expected 422" in lab
+    assert "Actual 200" in lab
+    assert "advance_payment_percentage: int" in lab
+    assert "테스트를 수정하거나 삭제하지 않는다." in lab
+    assert "선금 지급 비율이 음수이면 422로 거절하는 최소 제품 코드만 작성한다." in lab
+    assert "같은 verify 명령을 다시 실행한다." in lab
+    assert "판단 기준" in lab
+    assert "테스트 유지" in lab
+    assert "제품 코드 한 줄" in lab
+    assert "focused · full · lint · type" in lab
     assert "test_rejects_negative_payment_percentage_even_when_sum_is_100" in response.text
     assert "test_accepts_confirmed_budget_with_production_and_total_amounts" in response.text
     assert "test_rejects_attached_material_without_file_id" in response.text

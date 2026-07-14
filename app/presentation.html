@@ -944,6 +944,170 @@
       overflow-wrap: anywhere;
     }
 
+    .live-demo-model {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+      margin-bottom: 34px;
+      border: 1px solid #bfc5cc;
+      border-radius: 6px;
+      background: var(--paper);
+      overflow: hidden;
+    }
+
+    .live-demo-state {
+      min-width: 0;
+      padding: 26px;
+    }
+
+    .live-demo-kicker {
+      margin: 0 0 9px;
+      color: var(--blue);
+      font-family: "Cascadia Code", Consolas, monospace;
+      font-size: 0.72rem;
+      font-weight: 800;
+    }
+
+    .live-demo-state h3 {
+      margin: 0;
+      font-size: 1.22rem;
+      line-height: 1.4;
+    }
+
+    .live-demo-description {
+      margin: 10px 0 20px;
+      color: var(--muted);
+      font-size: 0.83rem;
+      line-height: 1.7;
+    }
+
+    .live-demo-facts {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .live-demo-fact {
+      min-width: 0;
+      padding: 14px 0;
+    }
+
+    .live-demo-fact + .live-demo-fact {
+      padding-left: 18px;
+      border-left: 1px solid var(--line);
+    }
+
+    .live-demo-fact dt {
+      margin-bottom: 5px;
+      color: var(--muted);
+      font-size: 0.69rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .live-demo-fact dd {
+      margin: 0;
+      font-size: 1rem;
+      font-weight: 850;
+    }
+
+    .live-demo-fact.actual dd {
+      color: var(--red);
+    }
+
+    .live-demo-missing {
+      margin: 18px 0 0;
+      color: var(--muted);
+      font-size: 0.75rem;
+      line-height: 1.6;
+    }
+
+    .live-demo-missing code {
+      display: block;
+      margin-top: 7px;
+      color: var(--ink);
+      font-size: 0.78rem;
+    }
+
+    .live-demo-request {
+      min-width: 0;
+      padding: 26px;
+      color: var(--code-text);
+      background: var(--code);
+    }
+
+    .live-demo-request-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .live-demo-request-head strong {
+      font-size: 0.82rem;
+    }
+
+    .live-demo-request-head span {
+      color: #9ca8b6;
+      font-size: 0.71rem;
+    }
+
+    .live-demo-request pre {
+      min-height: 150px;
+      margin: 0;
+      padding: 17px;
+      border: 1px solid #303944;
+      color: #e7edf5;
+      background: #0b0f14;
+      font-size: 0.72rem;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .live-demo-criteria-title {
+      display: block;
+      margin: 18px 0 9px;
+      color: #aeb9c6;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+    }
+
+    .live-demo-criteria {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .live-demo-criteria li {
+      min-width: 0;
+      padding: 0 12px;
+      border-left: 1px solid #303944;
+      color: #d3dbe5;
+      font-size: 0.69rem;
+      line-height: 1.55;
+    }
+
+    .live-demo-criteria li:first-child {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .live-demo-criteria li:last-child {
+      padding-right: 0;
+    }
+
+    .live-demo-criteria strong {
+      display: block;
+      margin-bottom: 3px;
+      color: #ffffff;
+      font-size: 0.74rem;
+    }
+
     .api-test-map {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1411,6 +1575,14 @@
         grid-template-columns: 1fr;
       }
 
+      .live-demo-model {
+        grid-template-columns: 1fr;
+      }
+
+      .live-demo-request {
+        border-top: 1px solid #303944;
+      }
+
       .tradeoff-grid {
         grid-template-columns: 1fr;
       }
@@ -1635,6 +1807,29 @@
       .api-test-card pre,
       .test-command {
         min-height: 0;
+      }
+
+      .live-demo-facts,
+      .live-demo-criteria {
+        grid-template-columns: 1fr;
+      }
+
+      .live-demo-fact + .live-demo-fact {
+        padding-left: 0;
+        border-top: 1px solid var(--line);
+        border-left: 0;
+      }
+
+      .live-demo-criteria li,
+      .live-demo-criteria li:first-child,
+      .live-demo-criteria li:last-child {
+        padding: 9px 0;
+        border-top: 1px solid #303944;
+        border-left: 0;
+      }
+
+      .live-demo-criteria li:first-child {
+        border-top: 0;
       }
 
       .spec-list li {
@@ -2165,6 +2360,48 @@ PASSED [100%]</pre>
             <li>focused test와 실제 HTTP 응답을 비교한다.</li>
           </ul>
         </div>
+
+        <section class="live-demo-model" aria-labelledby="live-demo-model-title">
+          <div class="live-demo-state">
+            <p class="live-demo-kicker">LIVE TDD · INITIAL STATE</p>
+            <h3 id="live-demo-model-title">현재 실패를 AI에게 어떻게 요청할까?</h3>
+            <p class="live-demo-description">
+              합계는 100이지만 선금이 -10인 요청을 서버가 승인했다. 기대 결과와 실제 결과의
+              차이를 사람이 먼저 확인한 뒤 최소 구현을 요청한다.
+            </p>
+            <dl class="live-demo-facts">
+              <div class="live-demo-fact">
+                <dt>Expected</dt>
+                <dd>Expected 422</dd>
+              </div>
+              <div class="live-demo-fact actual">
+                <dt>Observed</dt>
+                <dd>Actual 200</dd>
+              </div>
+            </dl>
+            <p class="live-demo-missing">
+              현재 제품 코드
+              <code>advance_payment_percentage: int</code>
+            </p>
+          </div>
+          <div class="live-demo-request">
+            <div class="live-demo-request-head">
+              <strong>AI Request (RED 승인 후 요청)</strong>
+              <span>복사보다 범위와 금지사항을 확인한다.</span>
+            </div>
+            <pre>방금 RED는 기대한 업무 동작 차이로 실패했다.
+테스트를 수정하거나 삭제하지 않는다.
+선금 지급 비율이 음수이면 422로 거절하는 최소 제품 코드만 작성한다.
+다른 API와 구조는 변경하지 않는다.
+같은 verify 명령을 다시 실행한다.</pre>
+            <strong class="live-demo-criteria-title">판단 기준</strong>
+            <ul class="live-demo-criteria">
+              <li><strong>테스트 유지</strong>실패한 기대값을 그대로 둔다.</li>
+              <li><strong>제품 코드 한 줄</strong>현재 RED 범위만 수정한다.</li>
+              <li><strong>전체 검증</strong>focused · full · lint · type</li>
+            </ul>
+          </div>
+        </section>
 
         <div class="api-test-map" aria-label="실습할 pytest 코드 3개">
           <article class="api-test-card">

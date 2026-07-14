@@ -5,7 +5,6 @@ from fastapi import FastAPI
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, model_validator
 
-
 PRESENTATION_PATH = Path(__file__).with_name("presentation.html")
 TVCF_LOGO_PATH = Path(__file__).with_name("tvcfLogo.png")
 
@@ -59,9 +58,7 @@ class ContractBudget(BaseModel):
             self.campaign_scale,
         )
         if any(value is not None for value in proposal_fields):
-            raise ValueError(
-                "confirmed amount cannot include budget ranges or campaign scale"
-            )
+            raise ValueError("confirmed amount cannot include budget ranges or campaign scale")
         return self
 
 
@@ -96,9 +93,7 @@ class ContractPaymentTerms(BaseModel):
         timings = [self.advance_timing, self.interim_timing, self.final_timing]
         positions = [timing_order[timing] for timing in timings]
         if positions != sorted(positions):
-            raise ValueError(
-                "advance payment timing must not be later than interim or final"
-            )
+            raise ValueError("advance payment timing must not be later than interim or final")
         return self
 
 

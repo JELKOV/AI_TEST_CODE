@@ -3,6 +3,14 @@
 사람이 동작과 기대 결과를 승인하면 AI 코딩 에이전트가 미완료 항목 하나만 선택한다.
 완료 표시는 유효한 RED, focused GREEN, full suite GREEN을 모두 확인한 뒤에만 바꾼다.
 
+## Live Demo Current Item
+
+발표 실습에서는 지급조건 규칙 하나를 RED에서 GREEN까지 검증한 흐름을 보여준다.
+
+- [x] **선택한 테스트:** 합계가 100이어도 선금 지급 비율이 음수이면
+  `POST /contracts/payment-terms/validate`가 `422`로 거절한다. 실습 화면은 현재
+  `Expected 422 / Actual 200`이었던 RED와 테스트를 유지한 최소 구현 요청문을 함께 보여준다.
+
 ## Completed History — AdMarket 계약 지급조건
 
 - [x] 선금 30%, 중도금 30%, 잔금 40%와 순서가 맞는 지급 시점은 `200`으로 승인한다.
