@@ -3,71 +3,200 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>AI-assisted TDD AdMarket Contract Lab</title>
+  <meta name="description" content="TVCF의 기존 테스트 자산을 연결해 AI 코딩 에이전트를 검증하는 AI-TDD 발표와 실습">
+  <link rel="icon" href="data:,">
+  <title>TVCF AI-TDD Harness</title>
   <style>
     :root {
-      color-scheme: dark;
-      --bg: #07111f;
-      --panel: rgba(15, 29, 48, 0.88);
-      --panel-strong: #101f34;
-      --line: #263d5d;
-      --line-bright: #3b5e88;
-      --text: #f4f7fb;
-      --muted: #9fb0c6;
-      --blue: #62a8ff;
-      --blue-soft: rgba(98, 168, 255, 0.13);
-      --red: #ff7a8a;
-      --red-soft: rgba(255, 122, 138, 0.12);
-      --green: #55d6a2;
-      --green-soft: rgba(85, 214, 162, 0.12);
-      --amber: #ffc66d;
-      --amber-soft: rgba(255, 198, 109, 0.12);
-      --shadow: 0 20px 55px rgba(0, 0, 0, 0.28);
-      font-family: Inter, Pretendard, "Noto Sans KR", "Segoe UI", sans-serif;
+      --ink: #17191c;
+      --ink-soft: #34383e;
+      --muted: #68707a;
+      --line: #d9dde2;
+      --line-dark: #3b4047;
+      --paper: #ffffff;
+      --canvas: #f3f5f7;
+      --black: #111315;
+      --red: #d83c4a;
+      --red-soft: #fff0f1;
+      --green: #087f62;
+      --green-soft: #eaf8f3;
+      --blue: #235fd4;
+      --blue-soft: #edf3ff;
+      --yellow: #9a6800;
+      --yellow-soft: #fff6dc;
+      --code: #10151b;
+      --code-text: #e8edf3;
+      font-family: Inter, Pretendard, "Noto Sans KR", "Segoe UI", Arial, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      font-synthesis: none;
     }
 
     * {
       box-sizing: border-box;
     }
 
+    .keep-together {
+      white-space: nowrap;
+    }
+
+    .summary-lines {
+      display: grid;
+      gap: 7px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .summary-lines > li {
+      position: relative;
+      min-width: 0;
+      padding-left: 14px;
+      line-height: 1.55;
+    }
+
+    .summary-lines > li::before {
+      position: absolute;
+      top: 0.78em;
+      left: 0;
+      width: 7px;
+      border-top: 2px solid var(--blue);
+      content: "";
+    }
+
+    .compact-lines {
+      gap: 4px;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 76px;
+    }
+
     body {
       min-width: 320px;
-      min-height: 100vh;
       margin: 0;
-      color: var(--text);
-      background:
-        radial-gradient(circle at 12% 8%, rgba(56, 122, 204, 0.20), transparent 28rem),
-        radial-gradient(circle at 92% 88%, rgba(48, 174, 135, 0.10), transparent 30rem),
-        var(--bg);
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.5;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+    }
+
+    pre,
+    code {
+      word-break: normal;
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
     }
 
     button,
     a {
-      font: inherit;
+      -webkit-tap-highlight-color: transparent;
     }
 
     button:focus-visible,
     a:focus-visible {
-      outline: 3px solid rgba(98, 168, 255, 0.48);
+      outline: 3px solid rgba(35, 95, 212, 0.3);
       outline-offset: 3px;
     }
 
-    .page {
-      width: min(1480px, calc(100% - 40px));
+    a {
+      color: inherit;
+    }
+
+    code,
+    pre {
+      font-family: "Cascadia Code", "SFMono-Regular", Consolas, monospace;
+    }
+
+    .container {
+      width: min(1280px, calc(100% - 48px));
       margin: 0 auto;
-      padding: 28px 0 34px;
+    }
+
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.96);
+      backdrop-filter: blur(12px);
+    }
+
+    .nav-inner {
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 13px;
+      text-decoration: none;
+    }
+
+    .brand-link img {
+      width: 64px;
+      height: 37px;
+      object-fit: contain;
+    }
+
+    .brand-link strong {
+      font-size: 0.82rem;
+      font-weight: 800;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+    }
+
+    .nav-links a {
+      color: var(--ink-soft);
+      font-size: 0.82rem;
+      font-weight: 750;
+      text-decoration: none;
+    }
+
+    .nav-links a:hover {
+      color: var(--blue);
+    }
+
+    .docs-link {
+      min-height: 36px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 12px;
+      border: 1px solid var(--ink);
+      border-radius: 5px;
     }
 
     .hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 22px;
-      align-items: end;
-      padding: 26px 28px;
-      border: 1px solid var(--line);
-      border-radius: 22px;
-      background: linear-gradient(135deg, rgba(18, 40, 66, 0.96), rgba(11, 24, 41, 0.92));
-      box-shadow: var(--shadow);
+      min-height: 70svh;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--line);
+      background: var(--paper);
+    }
+
+    .hero-inner {
+      padding: 70px 0 58px;
+    }
+
+    .hero-logo {
+      width: 172px;
+      height: auto;
+      display: block;
+      margin-bottom: 38px;
     }
 
     .eyebrow,
@@ -75,713 +204,2293 @@
     .panel-label {
       margin: 0;
       color: var(--blue);
-      font-size: 0.73rem;
-      font-weight: 800;
-      letter-spacing: 0.12em;
+      font-size: 0.75rem;
+      font-weight: 850;
+      letter-spacing: 0;
       text-transform: uppercase;
     }
 
-    h1 {
-      max-width: 980px;
-      margin: 9px 0 0;
-      font-size: clamp(1.8rem, 3.2vw, 3.25rem);
-      line-height: 1.18;
-      letter-spacing: -0.045em;
+    .hero h1 {
+      max-width: 1000px;
+      margin: 12px 0 20px;
+      font-size: 3.45rem;
+      line-height: 1.12;
+      letter-spacing: 0;
     }
 
-    .hero-tools {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-      justify-content: flex-end;
-      flex-wrap: wrap;
+    .hero-copy {
+      max-width: 810px;
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 1.16rem;
+      line-height: 1.72;
     }
 
-    .tool-link,
-    .command {
-      min-height: 42px;
-      display: inline-flex;
-      align-items: center;
-      border: 1px solid var(--line-bright);
-      border-radius: 11px;
-      color: var(--text);
-      background: rgba(6, 16, 29, 0.58);
-      white-space: nowrap;
-    }
-
-    .tool-link {
-      padding: 0 15px;
-      text-decoration: none;
+    .hero-copy > li:first-child {
+      color: var(--ink);
       font-weight: 750;
     }
 
-    .tool-link:hover {
-      border-color: var(--blue);
-      background: var(--blue-soft);
-    }
-
-    .command {
-      padding: 0 14px;
-      color: #cde2ff;
-      font-family: "Cascadia Code", Consolas, monospace;
-      font-size: 0.86rem;
-    }
-
-    .roles {
+    .hero-proof {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin-top: 14px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 48px;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
     }
 
-    .role-card,
-    .flow-card,
-    .lab,
-    .flow {
-      border: 1px solid var(--line);
-      background: var(--panel);
+    .proof-item {
+      min-height: 112px;
+      padding: 20px 24px 20px 0;
     }
 
-    .role-card {
+    .proof-item + .proof-item {
+      padding-left: 24px;
+      border-left: 1px solid var(--line);
+    }
+
+    .proof-item strong {
+      display: block;
+      margin-bottom: 7px;
+      font-size: 1rem;
+    }
+
+    .proof-item span {
+      color: var(--muted);
+      font-size: 0.85rem;
+      line-height: 1.55;
+    }
+
+    .goal-statement {
       display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 12px;
+      grid-template-columns: 160px minmax(0, 1fr);
+      gap: 32px;
+      align-items: start;
+      margin-bottom: 44px;
+      padding: 24px 0;
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .goal-statement strong {
+      color: var(--red);
+      font-size: 0.84rem;
+    }
+
+    .goal-statement p,
+    .goal-statement .summary-lines {
+      max-width: 920px;
+      margin: 0;
+      font-size: 1.12rem;
+      font-weight: 750;
+      line-height: 1.65;
+    }
+
+    .tradeoff-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tradeoff-column {
+      padding: 28px 32px 30px 0;
+    }
+
+    .tradeoff-column + .tradeoff-column {
+      padding-right: 0;
+      padding-left: 32px;
+      border-left: 1px solid var(--line);
+    }
+
+    .tradeoff-column h3 {
+      margin: 0 0 22px;
+      font-size: 1.08rem;
+    }
+
+    .tradeoff-list {
+      display: grid;
+      gap: 20px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .tradeoff-list li {
+      display: grid;
+      grid-template-columns: 118px minmax(0, 1fr);
+      gap: 18px;
+    }
+
+    .tradeoff-list strong {
+      color: var(--ink);
+      font-size: 0.82rem;
+    }
+
+    .tradeoff-list span {
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.65;
+    }
+
+    .video-band {
+      padding: 72px 0;
+      color: #f3f5f7;
+      background: var(--black);
+    }
+
+    .video-intro {
+      display: grid;
+      grid-template-columns: minmax(0, 0.9fr) minmax(360px, 0.6fr);
+      gap: 52px;
+      align-items: end;
+      margin-bottom: 36px;
+    }
+
+    .video-intro h2 {
+      margin: 10px 0 0;
+      font-size: 2.25rem;
+      line-height: 1.22;
+      letter-spacing: 0;
+    }
+
+    .video-intro > .summary-lines {
+      margin: 0;
+      color: #b5bdc7;
+      font-size: 0.88rem;
+    }
+
+    .video-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.55fr);
+      gap: 52px;
       align-items: center;
-      min-height: 88px;
-      padding: 15px 17px;
-      border-radius: 15px;
     }
 
-    .role-index {
-      width: 34px;
-      height: 34px;
+    .video-player {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: block;
+      border: 1px solid var(--line-dark);
+      border-radius: 4px;
+      background: #000;
+    }
+
+    .video-copy h2,
+    .video-copy h3 {
+      margin: 10px 0 16px;
+      font-size: 2rem;
+      line-height: 1.24;
+      letter-spacing: 0;
+    }
+
+    .video-copy p,
+    .video-copy > .summary-lines {
+      margin: 0;
+      color: #b5bdc7;
+      line-height: 1.75;
+    }
+
+    .video-copy > .summary-lines {
+      font-size: 0.92rem;
+    }
+
+    .video-fallback {
+      display: inline-block;
+      margin-top: 20px;
+      color: #c9dafd;
+      font-size: 0.82rem;
+      font-weight: 750;
+    }
+
+    .video-playlist {
       display: grid;
-      place-items: center;
-      border-radius: 10px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-top: 36px;
+      border-top: 1px solid var(--line-dark);
+      border-bottom: 1px solid var(--line-dark);
+    }
+
+    .video-tab {
+      min-width: 0;
+      min-height: 128px;
+      padding: 18px 20px;
+      border: 0;
+      border-right: 1px solid var(--line-dark);
+      color: #aeb6c0;
+      background: transparent;
+      font: inherit;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .video-tab:last-child {
+      border-right: 0;
+    }
+
+    .video-tab:hover,
+    .video-tab:focus-visible {
+      color: #ffffff;
+      background: #15191d;
+      outline: none;
+    }
+
+    .video-tab:focus-visible {
+      box-shadow: inset 0 0 0 2px var(--blue);
+    }
+
+    .video-tab[aria-selected="true"] {
+      color: #ffffff;
+      background: #1a1f24;
+      box-shadow: inset 0 3px 0 var(--blue);
+    }
+
+    .video-tab span,
+    .video-tab strong,
+    .video-tab small {
+      display: block;
+      letter-spacing: 0;
+    }
+
+    .video-tab span {
       color: var(--blue);
-      background: var(--blue-soft);
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+    }
+
+    .video-tab strong {
+      margin-top: 9px;
+      color: inherit;
+      font-size: 0.92rem;
+      line-height: 1.45;
+    }
+
+    .video-tab small {
+      margin-top: 7px;
+      color: #838d98;
+      font-size: 0.72rem;
+      line-height: 1.45;
+    }
+
+    .section {
+      padding: 92px 0;
+    }
+
+    .section-alt {
+      background: var(--canvas);
+    }
+
+    .section-dark {
+      color: #f3f5f7;
+      background: var(--black);
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(300px, 0.7fr);
+      gap: 56px;
+      align-items: end;
+      margin-bottom: 42px;
+    }
+
+    .section-head h2 {
+      max-width: 760px;
+      margin: 8px 0 0;
+      font-size: 2.25rem;
+      line-height: 1.2;
+      letter-spacing: 0;
+    }
+
+    .section-head > p,
+    .section-head > .summary-lines {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.94rem;
+      line-height: 1.7;
+    }
+
+    .section-dark .section-head > p,
+    .section-dark .section-head > .summary-lines {
+      color: #aeb6c0;
+    }
+
+    .context-principle {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding: 16px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .context-principle strong {
+      flex: 0 0 auto;
+      color: var(--red);
+      font-size: 0.82rem;
+    }
+
+    .context-principle p,
+    .context-principle .summary-lines {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.88rem;
+    }
+
+    .landscape {
+      border-top: 2px solid var(--ink);
+    }
+
+    .landscape-row {
+      display: grid;
+      grid-template-columns: 0.9fr 1fr 1.45fr 1.1fr;
+      gap: 28px;
+      align-items: start;
+      padding: 26px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .project-name strong {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 1.02rem;
+    }
+
+    .project-name span,
+    .landscape-cell span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .landscape-cell strong {
+      display: block;
+      margin-bottom: 7px;
+      color: var(--ink-soft);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+
+    .landscape-cell p,
+    .landscape-cell .summary-lines {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.86rem;
+      line-height: 1.65;
+    }
+
+    .landscape-cell code {
+      display: block;
+      margin-top: 8px;
+      color: var(--blue);
+      font-size: 0.72rem;
+      overflow-wrap: anywhere;
+    }
+
+    .harness-title {
+      color: #ffffff;
+    }
+
+    .section-head .harness-title {
+      font-size: 1.9rem;
+    }
+
+    .harness-flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      border-top: 1px solid var(--line-dark);
+      border-bottom: 1px solid var(--line-dark);
+    }
+
+    .harness-step {
+      min-height: 190px;
+      padding: 26px 24px 24px 0;
+      border-top: 4px solid var(--blue);
+    }
+
+    .harness-step:nth-child(2) {
+      border-top-color: #c69424;
+    }
+
+    .harness-step:nth-child(3) {
+      border-top-color: var(--red);
+    }
+
+    .harness-step:nth-child(4) {
+      border-top-color: #22a77f;
+    }
+
+    .harness-step + .harness-step {
+      padding-left: 24px;
+      border-left: 1px solid var(--line-dark);
+    }
+
+    .step-number {
+      display: block;
+      margin-bottom: 25px;
+      color: #8d97a3;
       font-family: "Cascadia Code", Consolas, monospace;
       font-size: 0.78rem;
-      font-weight: 800;
     }
 
-    .role-card h2,
-    .flow-card h3 {
+    .harness-step h3 {
+      margin: 0 0 9px;
+      font-size: 1rem;
+    }
+
+    .harness-step p,
+    .harness-step .summary-lines {
       margin: 0;
-      font-size: 0.97rem;
+      color: #aeb6c0;
+      font-size: 0.84rem;
+      line-height: 1.65;
     }
 
-    .role-card p,
-    .flow-card p,
-    .section-heading p,
-    .scenario-meta {
-      color: var(--muted);
-    }
-
-    .role-card p {
-      margin: 5px 0 0;
-      font-size: 0.82rem;
-      line-height: 1.45;
-    }
-
-    .workspace {
+    .method-origins {
       display: grid;
-      grid-template-columns: minmax(340px, 0.72fr) minmax(620px, 1.28fr);
-      gap: 14px;
-      margin-top: 14px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-top: 38px;
+      border-top: 1px solid var(--line-dark);
+      border-bottom: 1px solid var(--line-dark);
     }
 
-    .flow,
-    .lab {
-      border-radius: 19px;
-      padding: 21px;
-      box-shadow: var(--shadow);
+    .method-origin {
+      padding: 22px 22px 24px 0;
     }
 
-    .section-heading {
-      display: flex;
-      align-items: flex-end;
-      justify-content: space-between;
-      gap: 16px;
-      margin-bottom: 15px;
+    .method-origin + .method-origin {
+      padding-left: 22px;
+      border-left: 1px solid var(--line-dark);
     }
 
-    .section-heading h2 {
-      margin: 5px 0 0;
-      font-size: 1.22rem;
-      letter-spacing: -0.02em;
+    .method-origin strong {
+      display: block;
+      margin-bottom: 7px;
+      color: #ffffff;
+      font-size: 0.9rem;
     }
 
-    .section-heading p {
-      max-width: 420px;
+    .method-origin p {
       margin: 0;
+      color: #9fa8b3;
       font-size: 0.8rem;
-      line-height: 1.45;
+      line-height: 1.6;
+    }
+
+    .repository-docs {
+      margin-top: 42px;
+    }
+
+    .harness-runtime {
+      margin-top: 42px;
+    }
+
+    .repository-docs-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 28px;
+      align-items: end;
+      margin-bottom: 16px;
+    }
+
+    .repository-docs-head h3 {
+      margin: 0;
+      color: #ffffff;
+      font-size: 1.12rem;
+    }
+
+    .repository-docs-head p {
+      max-width: 580px;
+      margin: 0;
+      color: #929ca7;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      text-align: right;
+    }
+
+    .repository-doc-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-top: 1px solid var(--line-dark);
+      border-bottom: 1px solid var(--line-dark);
+    }
+
+    .repository-doc-grid.document-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .repository-doc {
+      min-width: 0;
+      padding: 22px 22px 23px 0;
+    }
+
+    .repository-doc + .repository-doc {
+      padding-left: 22px;
+      border-left: 1px solid var(--line-dark);
+    }
+
+    .repository-doc code,
+    .repository-doc strong,
+    .repository-doc p {
+      display: block;
+    }
+
+    .repository-doc code {
+      margin-bottom: 15px;
+      color: #87afff;
+      font-size: 0.78rem;
+    }
+
+    .repository-doc strong {
+      margin-bottom: 7px;
+      color: #ffffff;
+      font-size: 0.9rem;
+    }
+
+    .repository-doc p {
+      margin: 0;
+      color: #a7b0ba;
+      font-size: 0.8rem;
+      line-height: 1.62;
+    }
+
+    .harness-boundary {
+      display: flex;
+      justify-content: space-between;
+      gap: 28px;
+      margin: 0;
+      padding: 15px 0;
+      border-bottom: 1px solid var(--line-dark);
+    }
+
+    .harness-boundary strong {
+      flex: 0 0 auto;
+      color: #ffffff;
+      font-size: 0.82rem;
+    }
+
+    .harness-boundary span {
+      color: #a7b0ba;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      text-align: right;
+    }
+
+    .workflow-route {
+      display: flex;
+      justify-content: space-between;
+      gap: 28px;
+      align-items: center;
+      margin-top: 40px;
+      padding-bottom: 14px;
+    }
+
+    .workflow-route strong {
+      flex: 0 0 auto;
+      color: #ffffff;
+      font-size: 0.88rem;
+    }
+
+    .workflow-route span {
+      color: #aeb6c0;
+      font-size: 0.8rem;
+      line-height: 1.6;
+      text-align: right;
+    }
+
+    .command-table {
+      margin-top: 42px;
+      border-top: 1px solid var(--line-dark);
+    }
+
+    .command-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      align-items: baseline;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line-dark);
+    }
+
+    .command-caption strong {
+      font-size: 0.9rem;
+    }
+
+    .command-caption span {
+      color: #9fa8b3;
+      font-size: 0.77rem;
+      text-align: right;
+    }
+
+    .command-row {
+      display: grid;
+      grid-template-columns: 0.75fr 1.45fr 0.75fr;
+      gap: 24px;
+      align-items: center;
+      min-height: 68px;
+      border-bottom: 1px solid var(--line-dark);
+    }
+
+    .command-row strong {
+      font-size: 0.84rem;
+    }
+
+    .command-row code {
+      display: block;
+      max-width: 100%;
+      color: #c9dafd;
+      font-size: 0.78rem;
+      white-space: nowrap;
+      overflow-x: auto;
+      overflow-wrap: normal;
+    }
+
+    .command-row span {
+      color: #9fa8b3;
+      font-size: 0.77rem;
       text-align: right;
     }
 
     .source-links {
       display: flex;
-      gap: 7px;
       flex-wrap: wrap;
-      justify-content: flex-end;
+      gap: 10px 22px;
+      margin-top: 28px;
     }
 
     .source-links a {
-      padding: 6px 9px;
-      border: 1px solid var(--line);
-      border-radius: 8px;
-      color: var(--muted);
-      background: rgba(6, 16, 29, 0.45);
-      font-size: 0.69rem;
-      font-weight: 750;
-      text-decoration: none;
-    }
-
-    .source-links a:hover {
-      border-color: var(--blue);
-      color: var(--text);
-    }
-
-    .video-insight {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 10px;
-      padding: 10px 12px;
-      border: 1px solid var(--line-bright);
-      border-radius: 11px;
-      color: var(--text);
-      background: var(--blue-soft);
-      text-decoration: none;
-    }
-
-    .video-insight:hover {
-      border-color: var(--blue);
-    }
-
-    .video-time {
-      padding: 5px 7px;
-      border-radius: 7px;
-      color: #07111f;
-      background: var(--blue);
-      font-size: 0.66rem;
-      font-weight: 900;
-      letter-spacing: 0.06em;
-    }
-
-    .video-copy {
-      min-width: 0;
-    }
-
-    .video-copy strong,
-    .video-copy small {
-      display: block;
-    }
-
-    .video-copy strong {
+      color: #d7e2f8;
       font-size: 0.78rem;
+      text-underline-offset: 4px;
     }
 
-    .video-copy small {
-      margin-top: 3px;
-      color: var(--muted);
-      font-size: 0.69rem;
-      line-height: 1.35;
-    }
-
-    .flow-list {
+    .lab-intro {
       display: grid;
-      gap: 10px;
+      grid-template-columns: 0.72fr 1.28fr;
+      gap: 40px;
+      margin-bottom: 34px;
     }
 
-    .flow-card {
-      position: relative;
-      padding: 15px 16px 15px 52px;
-      border-radius: 14px;
-      overflow: hidden;
+    .spec-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      border-top: 2px solid var(--ink);
     }
 
-    .flow-card::before {
-      position: absolute;
-      inset: 0 auto 0 0;
-      width: 4px;
-      content: "";
-      background: currentColor;
+    .spec-list li {
+      display: grid;
+      grid-template-columns: 58px 1fr;
+      gap: 12px;
+      padding: 14px 0;
+      border-bottom: 1px solid var(--line);
+      font-size: 0.85rem;
     }
 
-    .flow-number {
-      position: absolute;
-      top: 15px;
-      left: 15px;
-      font-family: "Cascadia Code", Consolas, monospace;
-      font-size: 0.76rem;
+    .spec-list code {
+      color: var(--blue);
+      font-size: 0.74rem;
       font-weight: 800;
     }
 
-    .flow-card p {
-      margin: 6px 0 0;
-      font-size: 0.81rem;
-      line-height: 1.5;
+    .cycle-code {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      min-width: 0;
+      border: 1px solid #2d343c;
+      border-radius: 7px;
+      overflow: hidden;
+      background: var(--code);
     }
 
-    .flow-card code {
+    .harness-cycle {
+      margin-top: 28px;
+    }
+
+    .cycle-column {
+      min-width: 0;
+      padding: 17px;
+    }
+
+    .cycle-column + .cycle-column {
+      border-left: 1px solid #2d343c;
+    }
+
+    .cycle-column strong {
       display: block;
-      margin-top: 9px;
-      color: #dceaff;
+      margin-bottom: 12px;
+      font-size: 0.78rem;
+    }
+
+    .cycle-column.red strong {
+      color: #ff8b95;
+    }
+
+    .cycle-column.green strong {
+      color: #65dcb7;
+    }
+
+    .cycle-column.verify strong {
+      color: #ffd273;
+    }
+
+    .cycle-column pre {
+      min-height: 112px;
+      margin: 0;
+      color: var(--code-text);
+      font-size: 0.72rem;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .api-test-map {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 34px;
+    }
+
+    .api-test-card {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid #c8cdd3;
+      border-radius: 5px;
+      background: var(--paper);
+      overflow: hidden;
+    }
+
+    .api-test-copy {
+      min-height: 154px;
+      padding: 20px;
+    }
+
+    .api-test-copy > code {
+      color: var(--blue);
+      font-size: 0.71rem;
+      font-weight: 850;
+    }
+
+    .api-test-copy h3 {
+      margin: 10px 0 8px;
+      font-size: 1rem;
+      line-height: 1.35;
+    }
+
+    .api-test-copy p,
+    .api-test-copy .summary-lines {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.82rem;
+      line-height: 1.65;
+    }
+
+    .api-test-card pre {
+      min-height: 230px;
+      margin: 0;
+      padding: 18px;
+      color: var(--code-text);
+      background: var(--code);
+      font-size: 0.69rem;
+      line-height: 1.6;
+      overflow: auto;
+    }
+
+    .test-command {
+      min-height: 66px;
+      display: flex;
+      align-items: center;
+      padding: 13px 18px;
+      border-top: 1px solid #2d343c;
+      color: #c9dafd;
+      background: var(--code);
+      font-size: 0.7rem;
+      line-height: 1.5;
+      white-space: nowrap;
+      overflow-x: auto;
+      overflow-wrap: normal;
+    }
+
+    .lab-frame {
+      border: 1px solid #bfc5cc;
+      border-radius: 8px;
+      background: var(--paper);
+      box-shadow: 0 16px 38px rgba(27, 32, 38, 0.1);
+      overflow: hidden;
+    }
+
+    .lab-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      min-height: 58px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--line);
+      background: #f8f9fa;
+    }
+
+    .lab-toolbar strong {
+      font-size: 0.9rem;
+    }
+
+    .method {
+      color: var(--blue);
       font-family: "Cascadia Code", Consolas, monospace;
-      font-size: 0.74rem;
-      line-height: 1.45;
-      white-space: normal;
-    }
-
-    .flow-card.red {
-      color: var(--red);
-      background: linear-gradient(90deg, var(--red-soft), rgba(15, 29, 48, 0.88));
-    }
-
-    .flow-card.green {
-      color: var(--green);
-      background: linear-gradient(90deg, var(--green-soft), rgba(15, 29, 48, 0.88));
-    }
-
-    .flow-card.refactor {
-      color: var(--amber);
-      background: linear-gradient(90deg, var(--amber-soft), rgba(15, 29, 48, 0.88));
-    }
-
-    .flow-card h3,
-    .flow-card p {
-      color: var(--text);
+      font-size: 0.73rem;
+      overflow-wrap: anywhere;
     }
 
     .scenario-buttons {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin-bottom: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-bottom: 1px solid var(--line);
     }
 
     .scenario-button {
-      min-height: 79px;
-      padding: 12px 13px;
-      border: 1px solid var(--line);
-      border-radius: 13px;
-      color: var(--text);
-      background: rgba(9, 22, 38, 0.74);
+      min-width: 0;
+      min-height: 84px;
+      padding: 14px 16px;
+      border: 0;
+      border-right: 1px solid var(--line);
+      border-radius: 0;
+      color: var(--ink);
+      background: var(--paper);
       text-align: left;
       cursor: pointer;
-      transition: border-color 150ms ease, transform 150ms ease, background 150ms ease;
+    }
+
+    .scenario-button:last-child {
+      border-right: 0;
     }
 
     .scenario-button:hover:not(:disabled) {
-      border-color: var(--blue);
       background: var(--blue-soft);
-      transform: translateY(-1px);
     }
 
     .scenario-button[aria-pressed="true"] {
-      border-color: var(--blue);
-      box-shadow: inset 0 0 0 1px var(--blue);
+      box-shadow: inset 0 -4px 0 var(--blue);
       background: var(--blue-soft);
     }
 
     .scenario-button:disabled {
       cursor: wait;
-      opacity: 0.64;
+      opacity: 0.62;
+    }
+
+    .scenario-title,
+    .scenario-meta {
+      display: block;
     }
 
     .scenario-title {
-      display: block;
-      font-size: 0.88rem;
+      font-size: 0.82rem;
       font-weight: 800;
+      overflow-wrap: anywhere;
     }
 
     .scenario-meta {
-      display: block;
-      margin-top: 5px;
-      font-family: "Cascadia Code", Consolas, monospace;
+      margin-top: 6px;
+      color: var(--muted);
       font-size: 0.7rem;
     }
 
     .result-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-      grid-template-areas:
-        "status status"
-        "request response";
-      gap: 10px;
+      grid-template-columns: 0.7fr 1.15fr 1.15fr;
+      min-height: 330px;
     }
 
     .result-panel {
       min-width: 0;
-      border: 1px solid var(--line);
-      border-radius: 13px;
-      background: rgba(5, 15, 27, 0.74);
-      overflow: hidden;
+      border-right: 1px solid var(--line);
     }
 
-    .result-panel.status {
-      grid-area: status;
-    }
-
-    .result-panel.request {
-      grid-area: request;
-    }
-
-    .result-panel.response {
-      grid-area: response;
+    .result-panel:last-child {
+      border-right: 0;
     }
 
     .panel-head {
-      min-height: 39px;
+      min-height: 45px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 9px 12px;
+      padding: 0 14px;
       border-bottom: 1px solid var(--line);
-      background: rgba(19, 37, 60, 0.74);
+      background: #f8f9fa;
     }
 
-    .panel-head .panel-label {
-      color: #c6d8ee;
-      letter-spacing: 0.07em;
+    .panel-label {
+      color: var(--ink-soft);
     }
 
     .status-body {
       display: grid;
-      grid-template-columns: auto repeat(3, 1fr);
-      gap: 16px;
-      align-items: center;
-      min-height: 72px;
-      padding: 13px;
+      gap: 18px;
+      padding: 18px;
     }
 
     .status-badge {
-      min-width: 90px;
-      padding: 9px 12px;
-      border: 1px solid var(--line-bright);
+      width: fit-content;
+      min-height: 30px;
+      display: inline-flex;
+      align-items: center;
+      padding: 0 10px;
       border-radius: 999px;
-      color: var(--muted);
-      background: rgba(159, 176, 198, 0.08);
-      font-size: 0.77rem;
-      font-weight: 900;
-      text-align: center;
-    }
-
-    .status-badge.running {
-      border-color: var(--blue);
-      color: #cde4ff;
-      background: var(--blue-soft);
-    }
-
-    .status-badge.pass {
-      border-color: var(--green);
-      color: #a8f2d2;
-      background: var(--green-soft);
-    }
-
-    .status-badge.fail {
-      border-color: var(--red);
-      color: #ffc0c8;
-      background: var(--red-soft);
-    }
-
-    .status-item span {
-      display: block;
-      color: var(--muted);
-      font-size: 0.67rem;
-      font-weight: 750;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-    }
-
-    .status-item strong {
-      display: block;
-      margin-top: 4px;
-      color: var(--text);
-      font-family: "Cascadia Code", Consolas, monospace;
-      font-size: 0.75rem;
-      overflow-wrap: anywhere;
-    }
-
-    pre {
-      min-height: 214px;
-      max-height: 276px;
-      margin: 0;
-      padding: 13px;
-      color: #d8e8fb;
-      font-family: "Cascadia Code", Consolas, monospace;
-      font-size: 0.72rem;
-      line-height: 1.55;
-      white-space: pre-wrap;
-      overflow: auto;
-      scrollbar-color: var(--line-bright) transparent;
-    }
-
-    .method {
-      color: var(--green);
+      color: var(--ink-soft);
+      background: var(--canvas);
       font-family: "Cascadia Code", Consolas, monospace;
       font-size: 0.69rem;
       font-weight: 800;
     }
 
-    @media (max-width: 1040px) {
-      .hero {
-        grid-template-columns: 1fr;
-        align-items: start;
-      }
+    .status-badge.running {
+      color: var(--yellow);
+      background: var(--yellow-soft);
+    }
 
-      .hero-tools {
-        justify-content: flex-start;
-      }
+    .status-badge.pass {
+      color: var(--green);
+      background: var(--green-soft);
+    }
 
-      .workspace {
-        grid-template-columns: 1fr;
-      }
+    .status-badge.fail {
+      color: var(--red);
+      background: var(--red-soft);
+    }
 
-      .flow-list {
-        grid-template-columns: repeat(3, 1fr);
+    .status-item span,
+    .status-item strong {
+      display: block;
+    }
+
+    .status-item span {
+      margin-bottom: 3px;
+      color: var(--muted);
+      font-size: 0.72rem;
+    }
+
+    .status-item strong {
+      font-size: 0.83rem;
+      overflow-wrap: anywhere;
+    }
+
+    .result-panel pre {
+      height: 284px;
+      margin: 0;
+      padding: 16px;
+      color: var(--code-text);
+      background: var(--code);
+      font-size: 0.72rem;
+      line-height: 1.62;
+      white-space: pre-wrap;
+      overflow: auto;
+      overflow-wrap: anywhere;
+    }
+
+    .lab-note {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      margin-top: 18px;
+      padding: 15px 0;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .lab-note strong {
+      color: var(--green);
+      font-size: 0.8rem;
+    }
+
+    .lab-note p,
+    .lab-note .summary-lines {
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 0.84rem;
+    }
+
+    .situation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      margin-bottom: 40px;
+      border-top: 2px solid var(--ink);
+      border-bottom: 1px solid var(--line);
+    }
+
+    .situation-item {
+      min-height: 176px;
+      padding: 22px 22px 22px 0;
+    }
+
+    .situation-item + .situation-item {
+      padding-left: 22px;
+      border-left: 1px solid var(--line);
+    }
+
+    .situation-item > span,
+    .adoption-subhead > div > span {
+      color: var(--red);
+      font-size: 0.74rem;
+      font-weight: 800;
+    }
+
+    .situation-item h3 {
+      margin: 13px 0 10px;
+      font-size: 1rem;
+    }
+
+    .situation-item p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.65;
+    }
+
+    .adoption-subhead {
+      display: flex;
+      justify-content: space-between;
+      gap: 32px;
+      align-items: end;
+      margin: 0 0 16px;
+    }
+
+    .adoption-subhead h3 {
+      margin: 8px 0 0;
+      font-size: 1.25rem;
+    }
+
+    .adoption-subhead p {
+      max-width: 520px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+      text-align: right;
+    }
+
+    .adoption-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      border-top: 2px solid var(--ink);
+    }
+
+    .adoption-item {
+      min-height: 190px;
+      padding: 24px 24px 24px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .adoption-item + .adoption-item {
+      padding-left: 24px;
+      border-left: 1px solid var(--line);
+    }
+
+    .adoption-item code {
+      color: var(--blue);
+      font-size: 0.74rem;
+      font-weight: 800;
+    }
+
+    .adoption-item h3 {
+      margin: 18px 0 9px;
+      font-size: 1rem;
+    }
+
+    .adoption-item p,
+    .adoption-item .summary-lines {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.84rem;
+      line-height: 1.65;
+    }
+
+    .adoption-grid + .goal-statement {
+      margin-top: 40px;
+    }
+
+    .references {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 56px;
+      align-items: start;
+    }
+
+    .closing {
+      margin: 0;
+      font-size: 1.8rem;
+      font-weight: 800;
+      line-height: 1.4;
+    }
+
+    .closing span {
+      display: block;
+    }
+
+    .reference-list {
+      border-top: 1px solid var(--line);
+    }
+
+    .reference-list a {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      gap: 18px;
+      padding: 13px 0;
+      border-bottom: 1px solid var(--line);
+      color: var(--ink-soft);
+      font-size: 0.8rem;
+      text-decoration: none;
+    }
+
+    .reference-list a:hover {
+      color: var(--blue);
+    }
+
+    .reference-list strong {
+      color: var(--ink);
+    }
+
+    footer {
+      padding: 28px 0 38px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      background: var(--paper);
+      font-size: 0.76rem;
+    }
+
+    .footer-inner {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    @media (min-width: 981px) {
+      .single-line-points > li {
+        white-space: nowrap;
       }
     }
 
-    @media (max-width: 760px) {
-      .page {
-        width: min(100% - 24px, 1480px);
-        padding-top: 12px;
+    @media (max-width: 980px) {
+      .single-line-points > li {
+        white-space: normal;
       }
 
-      .hero,
-      .flow,
-      .lab {
-        padding: 17px;
-        border-radius: 16px;
+      .situation-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
 
-      .roles,
-      .flow-list,
-      .scenario-buttons {
+      .situation-item:nth-child(3) {
+        padding-left: 0;
+        border-top: 1px solid var(--line);
+        border-left: 0;
+      }
+
+      .nav-links a:not(.docs-link) {
+        display: none;
+      }
+
+      .hero h1 {
+        font-size: 2.7rem;
+      }
+
+      .section-head,
+      .lab-intro,
+      .references,
+      .video-intro {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+
+      .video-layout {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .api-test-map {
         grid-template-columns: 1fr;
       }
 
-      .section-heading {
-        align-items: flex-start;
-        flex-direction: column;
+      .tradeoff-grid {
+        grid-template-columns: 1fr;
       }
 
-      .section-heading p {
-        text-align: left;
+      .tradeoff-column,
+      .tradeoff-column + .tradeoff-column {
+        padding: 24px 0;
+        border-left: 0;
+      }
+
+      .tradeoff-column + .tradeoff-column {
+        border-top: 1px solid var(--line);
+      }
+
+      .landscape-row {
+        grid-template-columns: 0.8fr 1fr 1.2fr;
+      }
+
+      .landscape-row .landscape-cell:last-child {
+        grid-column: 2 / -1;
+      }
+
+      .harness-flow {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .harness-step:nth-child(3) {
+        border-left: 0;
+      }
+
+      .scenario-buttons {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
       }
 
       .result-grid {
-        grid-template-columns: 1fr;
-        grid-template-areas:
-          "status"
-          "request"
-          "response";
+        grid-template-columns: 0.8fr 1.2fr;
       }
 
-      .status-body {
-        grid-template-columns: 1fr 1fr;
+      .result-panel:nth-child(2) {
+        border-right: 0;
       }
 
-      .status-badge {
+      .result-panel:last-child {
         grid-column: 1 / -1;
+        border-top: 1px solid var(--line);
+      }
+
+      .result-panel:last-child pre {
+        height: 240px;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .container {
+        width: min(100% - 28px, 1280px);
+      }
+
+      .goal-statement,
+      .tradeoff-list li {
+        grid-template-columns: 1fr;
+        gap: 7px;
+      }
+
+      .situation-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .adoption-subhead {
+        display: grid;
+        gap: 8px;
+        align-items: start;
+      }
+
+      .adoption-subhead p {
+        text-align: left;
+      }
+
+      .situation-item,
+      .situation-item + .situation-item {
+        min-height: 0;
+        padding: 18px 0;
+        border-left: 0;
+      }
+
+      .situation-item + .situation-item {
+        border-top: 1px solid var(--line);
+      }
+
+      .nav-inner {
+        min-height: 58px;
+      }
+
+      .brand-link img {
+        width: 54px;
+        height: 31px;
+      }
+
+      .brand-link strong {
+        display: none;
+      }
+
+      .hero {
+        min-height: 74svh;
+      }
+
+      .hero-inner {
+        padding: 54px 0 42px;
+      }
+
+      .hero-logo {
+        width: 130px;
+        margin-bottom: 28px;
+      }
+
+      .hero h1 {
+        font-size: 2.15rem;
+      }
+
+      .hero-copy {
+        font-size: 1rem;
+      }
+
+      .hero-proof,
+      .method-origins,
+      .repository-doc-grid,
+      .adoption-grid,
+      .cycle-code {
+        grid-template-columns: 1fr;
+      }
+
+      .proof-item,
+      .proof-item + .proof-item,
+      .method-origin,
+      .method-origin + .method-origin,
+      .repository-doc,
+      .repository-doc + .repository-doc,
+      .adoption-item,
+      .adoption-item + .adoption-item {
+        padding: 18px 0;
+        border-left: 0;
+      }
+
+      .proof-item + .proof-item,
+      .method-origin + .method-origin,
+      .repository-doc + .repository-doc,
+      .adoption-item + .adoption-item {
+        border-top: 1px solid var(--line);
+      }
+
+      .repository-docs-head,
+      .workflow-route,
+      .harness-boundary {
+        display: grid;
+        gap: 8px;
+        align-items: start;
+      }
+
+      .repository-docs-head p,
+      .workflow-route span,
+      .harness-boundary span {
+        text-align: left;
+      }
+
+      .section {
+        padding: 66px 0;
+      }
+
+      .section-head h2 {
+        font-size: 1.75rem;
+      }
+
+      .section-head .harness-title {
+        font-size: 1.55rem;
+      }
+
+      .landscape-row {
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .landscape-row .landscape-cell:last-child {
+        grid-column: auto;
+      }
+
+      .harness-flow {
+        grid-template-columns: 1fr;
+      }
+
+      .harness-step,
+      .harness-step + .harness-step,
+      .harness-step:nth-child(3) {
+        min-height: 0;
+        padding: 20px 0;
+        border-left: 0;
+      }
+
+      .step-number {
+        margin-bottom: 12px;
+      }
+
+      .command-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+        padding: 13px 0;
+      }
+
+      .command-row span {
+        text-align: left;
+      }
+
+      .command-caption {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .command-caption span {
+        text-align: left;
+      }
+
+      .api-test-copy,
+      .api-test-card pre,
+      .test-command {
+        min-height: 0;
+      }
+
+      .spec-list li {
+        grid-template-columns: 50px 1fr;
+      }
+
+      .cycle-column + .cycle-column {
+        border-top: 1px solid #2d343c;
+        border-left: 0;
+      }
+
+      .lab-toolbar {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 13px;
+      }
+
+      .scenario-buttons,
+      .result-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .video-playlist {
+        grid-template-columns: 1fr;
+      }
+
+      .video-tab,
+      .video-tab:last-child {
+        min-height: 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--line-dark);
+      }
+
+      .video-tab:last-child {
+        border-bottom: 0;
+      }
+
+      .scenario-button {
+        min-height: 70px;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .result-panel,
+      .result-panel:nth-child(2),
+      .result-panel:last-child {
+        grid-column: auto;
+        border-top: 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .result-panel:last-child {
+        border-bottom: 0;
+      }
+
+      .result-panel pre,
+      .result-panel:last-child pre {
+        height: 230px;
+      }
+
+      .reference-list a {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .closing {
+        font-size: 1.45rem;
+      }
+
+      .footer-inner {
+        flex-direction: column;
       }
     }
   </style>
 </head>
 <body>
-  <main class="page">
-    <header class="hero">
-      <div>
-        <p class="eyebrow">Augmented Coding (개발자 주도 AI 코딩) · TDD Workflow</p>
-        <h1>AI가 구현 속도를 높이고, 테스트가 행동을 통제한다</h1>
+  <nav class="site-nav" aria-label="콘텐츠 구간 이동">
+    <div class="container nav-inner">
+      <a class="brand-link" href="#top" aria-label="첫 화면으로 이동">
+        <img src="/assets/tvcf-logo.png" alt="TVCF">
+        <strong>AI-TDD Harness</strong>
+      </a>
+      <div class="nav-links">
+        <a href="#company">01 · 테스트 구성</a>
+        <a href="#harness">02 · 작업 흐름</a>
+        <a href="#lab">03 · 실습</a>
+        <a href="#adoption">04 · 적용</a>
+        <a class="docs-link" href="/docs" target="_blank" rel="noreferrer">OpenAPI</a>
       </div>
-      <div class="hero-tools" aria-label="실행 자료">
-        <a class="tool-link" href="/docs" target="_blank" rel="noreferrer">OpenAPI Docs (API 문서)</a>
-        <code class="command">uv run pytest -q</code>
+    </div>
+  </nav>
+
+  <main id="top">
+    <header class="hero">
+      <div class="container hero-inner">
+        <img class="hero-logo" src="/assets/tvcf-logo.png" alt="TVCF">
+        <p class="eyebrow">AI 코딩 에이전트 × 기존 테스트 자산</p>
+        <h1>AI에게 TDD를 시키는 것만으로 충분할까?</h1>
+        <ul class="summary-lines single-line-points hero-copy" aria-label="발표 핵심 범위">
+          <li>AI가 코드를 빨리 만들수록, 무엇이 맞는지 판단하는 기준이 더 중요해진다.</li>
+          <li>테스트는 오류 검사를 넘어 업무 의도와 완료 조건을 AI에게 전달한다.</li>
+          <li>Frontend와 Backend는 테스트 파일이 아니라 API 계약과 핵심 시나리오를 공유한다.</li>
+          <li>작은 계약 API와 Repository Harness로 이 기준이 실제로 작동하는지 확인한다.</li>
+        </ul>
+        <div class="hero-proof" aria-label="발표 핵심 근거">
+          <div class="proof-item">
+            <strong>사람이 의도를 승인한다</strong>
+            <span>업무 정답과 경계값은 담당자가 승인한다.</span>
+          </div>
+          <div class="proof-item">
+            <strong>AI가 한 단계씩 실행한다</strong>
+            <span>테스트 하나만 실행하고 RED·GREEN을 기록한다.</span>
+          </div>
+          <div class="proof-item">
+            <strong>테스트가 완료를 판정한다</strong>
+            <span>focused test와 full gate로 완료를 판정한다.</span>
+          </div>
+        </div>
       </div>
     </header>
 
-    <section class="roles" aria-label="TDD 참여자 역할">
-      <article class="role-card">
-        <span class="role-index">AI</span>
-        <div>
-          <h2>AI Agent (AI 에이전트)</h2>
-          <p>사람이 승인한 plan.md의 다음 행동 하나만 구현하고 실행 증거를 남긴다.</p>
+    <section class="section section-alt" id="overview" aria-labelledby="overview-title">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">Start Here · 먼저 볼 기준</p>
+            <h2 id="overview-title">테스트가 있다는 것과 AI가 올바르게 검증하는 것은 다르다</h2>
+          </div>
+          <ul class="summary-lines single-line-points">
+            <li>현재 테스트 구조의 장점과 운영 비용을 함께 본다.</li>
+            <li>테스트 수보다 변경에 맞는 반복 검증에 집중한다.</li>
+          </ul>
         </div>
-      </article>
-      <article class="role-card">
-        <span class="role-index">H</span>
-        <div>
-          <h2>Human (사람)</h2>
-          <p>계획과 기대 결과를 승인하고 테스트, diff, 설계를 최종 검토한다.</p>
+
+        <div class="goal-statement">
+          <strong>오늘의 목표</strong>
+          <p>AI가 변경한 코드가 기대한 업무 규칙을 지키는지 재현 가능한 테스트와 실제 HTTP 응답으로 증명한다.</p>
         </div>
-      </article>
-      <article class="role-card">
-        <span class="role-index">T</span>
-        <div>
-          <h2>pytest (테스트 실행기)</h2>
-          <p>합의된 행동을 실행 가능한 규칙으로 고정하고 회귀를 즉시 드러낸다.</p>
+
+        <div class="tradeoff-grid">
+          <section class="tradeoff-column" aria-labelledby="strengths-title">
+            <h3 id="strengths-title">Strengths (장점)</h3>
+            <ul class="tradeoff-list">
+              <li><strong>Fast feedback</strong><span>잘못된 입력을 DB 작업 전에 발견한다.</span></li>
+              <li><strong>Layered safety</strong><span>unit · integration · e2e · harness가 서로 다른 위험을 보호한다.</span></li>
+              <li><strong>Executable spec</strong><span>업무 규칙이 반복 실행 가능한 명세가 된다.</span></li>
+            </ul>
+          </section>
+          <section class="tradeoff-column" aria-labelledby="tradeoffs-title">
+            <h3 id="tradeoffs-title">Trade-offs (고려사항)</h3>
+            <ul class="tradeoff-list">
+              <li><strong>Execution cost</strong><span>DB·인증·외부 연동이 있는 테스트는 실행 비용이 크다.</span></li>
+              <li><strong>Impact discovery</strong><span>변경 경로와 가까운 테스트를 먼저 찾는다.</span></li>
+              <li><strong>Mock과 실제 경계</strong><span>실제 연동 차이는 integration·e2e로 보완한다.</span></li>
+            </ul>
+          </section>
         </div>
-      </article>
+      </div>
     </section>
 
-    <div class="workspace">
-      <section class="flow" aria-labelledby="flow-title">
-        <div class="section-heading">
+    <section class="video-band" id="video" aria-labelledby="video-title">
+      <div class="container">
+        <div class="video-intro">
           <div>
-            <p class="section-kicker">TDD Cycle (테스트 주도 흐름)</p>
-            <h2 id="flow-title">RED → GREEN → REFACTOR</h2>
+            <p class="section-kicker">3 External Video Briefings</p>
+            <h2 id="video-title">세 관점으로 비교하는 AI 시대 TDD</h2>
           </div>
-          <nav class="source-links" aria-label="참고 자료">
-            <a href="https://newsletter.kentbeck.com/p/canon-tdd" target="_blank" rel="noreferrer">Canon TDD (원문)</a>
-            <a href="https://fastapi.tiangolo.com/tutorial/testing/" target="_blank" rel="noreferrer">FastAPI Testing (공식 문서)</a>
-          </nav>
+          <ul class="summary-lines single-line-points">
+            <li>Kent Beck의 질문과 인터뷰를 각각 본다.</li>
+            <li>GitHub 공식 사례로 공통 작업 순서를 비교한다.</li>
+          </ul>
         </div>
-        <a class="video-insight" href="https://www.youtube.com/watch?v=AAd8taPTyTM&amp;t=137s" target="_blank" rel="noreferrer" aria-label="딩코딩코 AI TDD 해설 영상 2분 17초부터 보기">
-          <span class="video-time">VIDEO 2:17</span>
-          <span class="video-copy">
-            <strong>딩코딩코 Augmented Coding 해설·재현</strong>
-            <small>계획 → RED → GREEN → REFACTOR → 검증</small>
-          </span>
-        </a>
-        <div class="flow-list">
-          <article class="flow-card red">
-            <span class="flow-number">01</span>
-            <h3>RED (실패 확인)</h3>
-            <p>지급 비율 합계가 100이 아니면 422여야 한다는 테스트를 먼저 쓰고 실제 200 응답을 확인한다.</p>
-            <code>assert response.status_code == 422</code>
-          </article>
-          <article class="flow-card green">
-            <span class="flow-number">02</span>
-            <h3>GREEN (최소 구현)</h3>
-            <p>선금·중도금·잔금의 합계가 정확히 100인지 확인하는 최소 규칙만 구현한다.</p>
-            <code>advance + interim + final == 100</code>
-          </article>
-          <article class="flow-card refactor">
-            <span class="flow-number">03</span>
-            <h3>REFACTOR (구조 개선)</h3>
-            <p>GREEN에서 행동 변경과 분리해 이름과 구조만 개선하고 전체 테스트를 재실행한다.</p>
-            <code>uv run pytest -q</code>
-          </article>
-        </div>
-      </section>
 
-      <section class="lab" aria-labelledby="lab-title">
-        <div class="section-heading">
+        <div class="video-layout">
+          <iframe
+            class="video-player"
+            id="briefing-video"
+            src="https://www.youtube-nocookie.com/embed/sMujMp4h_EY?start=24&amp;end=76&amp;cc_load_policy=1&amp;cc_lang_pref=en&amp;rel=0"
+            title="Sustainable Augmented Development · Kent Beck · YOW! 2025"
+            loading="lazy"
+            referrerpolicy="strict-origin-when-cross-origin"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen
+          ></iframe>
+          <div class="video-copy" id="video-panel" role="tabpanel" aria-labelledby="video-tab-problem" aria-live="polite">
+            <p class="section-kicker" id="video-kicker">01 · 문제 제기 · YOW! 2025 · 0:24~1:16</p>
+            <h3 id="video-heading">AI 시대 TDD에는 정답이 정립됐을까?</h3>
+            <ul class="summary-lines single-line-points" id="video-points">
+              <li>프로그래밍 방식은 빠르게 변하고 있다.</li>
+              <li>AI와 TDD의 순서는 아직 정답이 없다.</li>
+              <li>팀이 직접 실험하며 기준을 찾아야 한다.</li>
+            </ul>
+            <a class="video-fallback" id="video-fallback" href="https://www.youtube.com/watch?v=sMujMp4h_EY&amp;t=24s" target="_blank" rel="noreferrer">YouTube 원본 전체 영상에서 보기</a>
+          </div>
+        </div>
+
+        <div class="video-playlist" role="tablist" aria-label="영상 브리핑 순서">
+          <button
+            class="video-tab"
+            id="video-tab-problem"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="video-panel"
+            tabindex="0"
+            data-video-key="problem"
+            data-video-src="https://www.youtube-nocookie.com/embed/sMujMp4h_EY?start=24&amp;end=76&amp;cc_load_policy=1&amp;cc_lang_pref=en&amp;rel=0"
+            data-video-watch="https://www.youtube.com/watch?v=sMujMp4h_EY&amp;t=24s"
+            data-video-title="Sustainable Augmented Development · Kent Beck · YOW! 2025"
+            data-video-kicker="01 · 문제 제기 · YOW! 2025 · 0:24~1:16"
+            data-video-heading="AI 시대 TDD에는 정답이 정립됐을까?"
+            data-video-point-1="프로그래밍 방식은 빠르게 변하고 있다."
+            data-video-point-2="AI와 TDD의 순서는 아직 정답이 없다."
+            data-video-point-3="팀이 직접 실험하며 기준을 찾아야 한다."
+          >
+            <span>01 · 문제 제기</span>
+            <strong>정답이 정립됐는가?</strong>
+            <small>YOW! 2025 · 0:24~1:16 · 52초</small>
+          </button>
+          <button
+            class="video-tab"
+            id="video-tab-risk"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="video-panel"
+            tabindex="-1"
+            data-video-key="risk"
+            data-video-src="https://www.youtube-nocookie.com/embed/aSXaxOdVtAQ?start=3024&amp;end=3118&amp;cc_load_policy=1&amp;cc_lang_pref=en&amp;rel=0"
+            data-video-watch="https://www.youtube.com/watch?v=aSXaxOdVtAQ&amp;t=3024s"
+            data-video-title="TDD, AI agents and coding with Kent Beck · The Pragmatic Engineer"
+            data-video-kicker="02 · 위험 확인 · The Pragmatic Engineer · 50:24~51:58"
+            data-video-heading="AI가 테스트를 바꾸려 하면 누가 멈추는가?"
+            data-video-point-1="테스트는 AI가 놓친 기대값을 전달한다."
+            data-video-point-2="AI는 실패를 피하려고 테스트를 바꾸려 할 수 있다."
+            data-video-point-3="사람이 승인한 기대값은 변경 금지 경계가 된다."
+          >
+            <span>02 · 위험 확인</span>
+            <strong>테스트를 바꾸려 한다면?</strong>
+            <small>The Pragmatic Engineer · 50:24~51:58 · 94초</small>
+          </button>
+          <button
+            class="video-tab"
+            id="video-tab-github"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="video-panel"
+            tabindex="-1"
+            data-video-key="github"
+            data-video-src="https://www.youtube-nocookie.com/embed/arn6hqERKn4?start=366&amp;end=444&amp;cc_load_policy=1&amp;cc_lang_pref=en&amp;rel=0"
+            data-video-watch="https://www.youtube.com/watch?v=arn6hqERKn4&amp;t=366s"
+            data-video-title="Test-driven development with GitHub Copilot: A beginner's practical guide"
+            data-video-kicker="03 · 업계 사례 · GitHub 공식 채널 · 2025 · 6:06~7:24"
+            data-video-heading="AI에게 TDD를 맡길 때 무엇을 먼저 주는가?"
+            data-video-point-1="개발자가 기능 요구조건을 먼저 정의한다."
+            data-video-point-2="Copilot이 아직 없는 기능의 테스트를 먼저 만든다."
+            data-video-point-3="실패 확인 뒤 구현을 만들고 다시 실행한다."
+          >
+            <span>03 · GitHub 공식 사례</span>
+            <strong>요구조건부터 주면?</strong>
+            <small>GitHub · 6:06~7:24 · 78초</small>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="company" aria-labelledby="company-title">
+      <div class="container">
+        <div class="section-head">
           <div>
-            <p class="section-kicker">Live API Lab (실시간 API 실습)</p>
-            <h2 id="lab-title">AdMarket Contract Payment Terms</h2>
+            <p class="section-kicker">01 · Frontend / Backend Test Layers</p>
+            <h2 id="company-title">Frontend와 Backend의 <span class="keep-together">테스트 구성</span></h2>
           </div>
-          <p>실제 AdMarket 계약 테스트에서 DB·인증을 덜어내고 지급조건 업무 규칙만 실행합니다.</p>
+          <ul class="summary-lines single-line-points">
+            <li>각 영역은 서로 다른 위험을 검증한다.</li>
+            <li>빠른 테스트부터 전체 회귀까지 단계적으로 실행한다.</li>
+          </ul>
         </div>
 
-        <div class="scenario-buttons" role="group" aria-label="계약 지급조건 시나리오 선택">
-          <button class="scenario-button" type="button" data-scenario="valid" aria-pressed="false">
-            <span class="scenario-title">Valid Terms (정상 지급조건)</span>
-            <span class="scenario-meta">Expected (기대): 200 OK</span>
-          </button>
-          <button class="scenario-button" type="button" data-scenario="invalid-total" aria-pressed="false">
-            <span class="scenario-title">Invalid Total (합계 오류)</span>
-            <span class="scenario-meta">Expected (기대): 422</span>
-          </button>
-          <button class="scenario-button" type="button" data-scenario="invalid-order" aria-pressed="false">
-            <span class="scenario-title">Invalid Order (순서 오류)</span>
-            <span class="scenario-meta">Expected (기대): 422</span>
-          </button>
+        <div class="context-principle">
+          <strong>공통 품질 기준</strong>
+          <ul class="summary-lines single-line-points">
+            <li>테스트 소유권은 각 영역에 둔다.</li>
+            <li><b>API 계약과 핵심 시나리오</b>, 재현 가능한 실행 결과는 함께 공유한다.</li>
+          </ul>
         </div>
 
-        <div class="result-grid">
-          <section class="result-panel status" aria-labelledby="status-label">
-            <div class="panel-head">
-              <span class="panel-label" id="status-label">Status (상태)</span>
+        <div class="landscape" role="table" aria-label="Frontend와 Backend 테스트 구성">
+          <div class="landscape-row" role="row">
+            <div class="project-name" role="cell">
+              <strong>Frontend 테스트</strong>
+              <span>Jest · Vitest · Playwright</span>
             </div>
-            <div class="status-body" aria-live="polite">
-              <span class="status-badge" id="status-badge">READY (대기)</span>
-              <div class="status-item">
-                <span>Scenario (시나리오)</span>
-                <strong id="status-scenario">선택 전</strong>
-              </div>
-              <div class="status-item">
-                <span>Expected (기대)</span>
-                <strong id="status-expected">-</strong>
-              </div>
-              <div class="status-item">
-                <span>Actual (실제)</span>
-                <strong id="status-actual">-</strong>
-              </div>
+            <div class="landscape-cell" role="cell">
+              <strong>빠른 로직 검증</strong>
+              <ul class="summary-lines compact-lines">
+                <li>상태 계산·데이터 변환을 검증한다.</li>
+                <li>조건 분기를 빠르게 확인한다.</li>
+              </ul>
             </div>
-          </section>
+            <div class="landscape-cell" role="cell">
+              <strong>브라우저 흐름 검증</strong>
+              <ul class="summary-lines compact-lines">
+                <li>렌더링·버튼·오류 UI를 검증한다.</li>
+                <li>핵심 흐름을 브라우저에서 확인한다.</li>
+              </ul>
+            </div>
+            <div class="landscape-cell" role="cell">
+              <strong>AI 완료 기준</strong>
+              <ul class="summary-lines compact-lines">
+                <li>focused test를 먼저 통과한다.</li>
+                <li>흐름이 바뀌면 Playwright까지 확인한다.</li>
+              </ul>
+            </div>
+          </div>
 
-          <section class="result-panel request" aria-labelledby="request-label">
-            <div class="panel-head">
-              <span class="panel-label" id="request-label">Request (요청)</span>
-              <span class="method">POST /contracts/payment-terms/validate</span>
+          <div class="landscape-row" role="row">
+            <div class="project-name" role="cell">
+              <strong>Backend 테스트</strong>
+              <span>pytest</span>
             </div>
-            <pre id="request-output">시나리오 버튼을 선택하면 요청 JSON이 표시됩니다.</pre>
-          </section>
-
-          <section class="result-panel response" aria-labelledby="response-label">
-            <div class="panel-head">
-              <span class="panel-label" id="response-label">Response (응답)</span>
-              <span class="method" id="response-method">HTTP -</span>
+            <div class="landscape-cell" role="cell">
+              <strong>업무 규칙 검증</strong>
+              <ul class="summary-lines compact-lines">
+                <li>계산 규칙·입력 경계를 검증한다.</li>
+                <li>상태 전이·권한을 빠르게 확인한다.</li>
+              </ul>
             </div>
-            <pre id="response-output">API 응답을 기다리고 있습니다.</pre>
-          </section>
+            <div class="landscape-cell" role="cell">
+              <strong>API와 통합 검증</strong>
+              <ul class="summary-lines compact-lines">
+                <li>상태 코드·응답 계약·DB를 검증한다.</li>
+                <li>e2e와 harness로 전체 흐름을 확인한다.</li>
+              </ul>
+            </div>
+            <div class="landscape-cell" role="cell">
+              <strong>AI 완료 기준</strong>
+              <ul class="summary-lines compact-lines">
+                <li>가까운 unit test부터 통과한다.</li>
+                <li>integration·e2e를 통과한다.</li>
+                <li>harness를 full gate로 확인한다.</li>
+              </ul>
+            </div>
+          </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
+
+    <section class="section section-dark" id="harness" aria-labelledby="harness-title">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">02 · AI + TDD Workflow</p>
+            <h2 class="harness-title" id="harness-title">AI와 TDD를 연결하는 실제 작업 순서</h2>
+          </div>
+          <ul class="summary-lines single-line-points">
+            <li>Kent Beck의 TDD 흐름이 작업의 기본이다.</li>
+            <li>AI에는 저장소 규칙과 실행 명령을 함께 제공한다.</li>
+          </ul>
+        </div>
+
+        <div class="method-origins" aria-label="TDD와 AI 작업 환경의 출처">
+          <div class="method-origin">
+            <strong>Kent Beck · TDD</strong>
+            <p>테스트 목록에서 하나를 실행 가능한 테스트로 만들고, 통과시킨 뒤 필요하면 리팩터링한다.</p>
+          </div>
+          <div class="method-origin">
+            <strong>OpenAI · Harness Engineering</strong>
+            <p>AI가 저장소의 문서·도구·테스트와 피드백을 직접 사용할 수 있게 작업 환경을 만든다.</p>
+          </div>
+        </div>
+
+        <div class="repository-docs" aria-labelledby="repository-docs-title">
+          <div class="repository-docs-head">
+            <h3 id="repository-docs-title">현재 저장소의 Markdown 문서</h3>
+            <p>제품 기능이 아니라 사람과 AI가 같은 순서로 작업하기 위해 저장소에 둔 문서다.</p>
+          </div>
+          <div class="repository-doc-grid document-grid">
+            <article class="repository-doc">
+              <code>plan.md</code>
+              <strong>무엇을 할지</strong>
+              <p>사람이 승인한 테스트 목록에서 이번에 진행할 하나를 선택한다.</p>
+            </article>
+            <article class="repository-doc">
+              <code>AGENTS.md</code>
+              <strong>어떻게 작업할지</strong>
+              <p>AI가 지킬 10개 규칙으로 유효한 RED, 최소 구현과 검증 순서를 고정한다.</p>
+            </article>
+          </div>
+        </div>
+
+        <div class="harness-runtime" aria-labelledby="harness-runtime-title">
+          <div class="repository-docs-head">
+            <h3 id="harness-runtime-title">실행 가능한 최소 Repository Harness</h3>
+            <p>문서의 약속을 한 개의 설정과 실행기로 연결한다.</p>
+          </div>
+          <div class="repository-doc-grid">
+            <article class="repository-doc">
+              <code>harness.toml</code>
+              <strong>연결 설정</strong>
+              <p>두 문서의 경로와 focused·full·lint·type 실행 순서를 선언한다.</p>
+            </article>
+            <article class="repository-doc">
+              <code>scripts/tdd_harness.py</code>
+              <strong>실행 진입점</strong>
+              <p>구성을 확인하고 네 검증을 순서대로 실행해 첫 실패에서 중단한다.</p>
+            </article>
+            <article class="repository-doc">
+              <code>.harness/latest-run.json</code>
+              <strong>기계 실행 증거</strong>
+              <p>실행 명령·종료 코드·소요 시간과 최종 성공 여부를 자동으로 남긴다.</p>
+            </article>
+          </div>
+          <p class="harness-boundary">
+            <strong>사람의 판단</strong>
+            <span>업무 기대값과 RED 실패 이유는 사람이 판단한다.</span>
+          </p>
+        </div>
+
+        <div class="workflow-route" aria-label="Markdown 문서가 사용되는 작업 순서">
+          <strong>문서가 쓰이는 순서</strong>
+          <span>사람 승인 → plan.md에서 하나 선택 → AGENTS.md 규칙으로 RED·GREEN → 전체 검증 → JSON 실행 결과 확인</span>
+        </div>
+
+        <div class="harness-flow">
+          <article class="harness-step">
+            <span class="step-number">01 / EXPECTED</span>
+            <h3>기대 결과 정하기</h3>
+            <ul class="summary-lines compact-lines">
+              <li>사람이 동작과 기대값을 정한다.</li>
+              <li>plan.md에서 테스트 하나를 고른다.</li>
+            </ul>
+          </article>
+          <article class="harness-step">
+            <span class="step-number">02 / RED</span>
+            <h3>실패 확인하기</h3>
+            <ul class="summary-lines compact-lines">
+              <li>AI가 테스트 하나를 작성한다.</li>
+              <li>verify 명령은 focused 실패에서 중단한다.</li>
+              <li>사람이 동작 부재로 실패했는지 확인한다.</li>
+            </ul>
+          </article>
+          <article class="harness-step">
+            <span class="step-number">03 / GREEN</span>
+            <h3>최소 코드 수정하기</h3>
+            <ul class="summary-lines compact-lines">
+              <li>AGENTS.md 규칙 3~5에 따라 실패한 테스트는 유지한다.</li>
+              <li>최소 제품 코드 수정 후 같은 verify 명령을 다시 실행한다.</li>
+            </ul>
+          </article>
+          <article class="harness-step">
+            <span class="step-number">04 / VERIFY</span>
+            <h3>전체 확인하기</h3>
+            <ul class="summary-lines compact-lines">
+              <li>focused가 통과하면 full·lint·type을 이어서 실행한다.</li>
+              <li>.harness/latest-run.json에서 실행 결과를 확인한다.</li>
+            </ul>
+          </article>
+        </div>
+
+        <div class="command-table" aria-label="데모 검증 명령">
+          <div class="command-caption">
+            <strong>실제로 실행하는 Git Bash 명령</strong>
+            <span>기대 결과 → RED → GREEN → 전체 확인 · 같은 verify 명령으로 실행</span>
+          </div>
+          <div class="command-row">
+            <strong>00 · 처음 한 번</strong>
+            <code>uv sync</code>
+            <span>의존성 설치</span>
+          </div>
+          <div class="command-row">
+            <strong>01 · 연결 확인</strong>
+            <code>uv run python scripts/tdd_harness.py check</code>
+            <span>문서 · 명령 · 증거 경로</span>
+          </div>
+          <div class="command-row">
+            <strong>02 · 변경 검증</strong>
+            <code>uv run python scripts/tdd_harness.py verify --focused tests/test_contract_budget.py::test_accepts_confirmed_budget_with_production_and_total_amounts</code>
+            <span>focused 실패 시 중단 · 통과 시 전체 검증</span>
+          </div>
+          <div class="command-row">
+            <strong>harness.toml 순서</strong>
+            <code>uv run pytest {focused} -vv<br>uv run pytest -vv<br>uv run ruff check .<br>uvx pyright</code>
+            <span>focused · full · lint · type</span>
+          </div>
+        </div>
+
+        <div class="cycle-code harness-cycle" aria-label="RED GREEN 전체 확인 결과">
+          <div class="cycle-column red">
+            <strong>RED · 실패 이유 확인</strong>
+            <pre>[1/4] focused
+FAILED
+expected: 422
+actual:   200
+STOP: focused failed</pre>
+          </div>
+          <div class="cycle-column green">
+            <strong>GREEN · 선택 테스트 통과</strong>
+            <pre>test_contract_budget.py
+PASSED [100%]</pre>
+          </div>
+          <div class="cycle-column verify">
+            <strong>VERIFY · 전체 확인</strong>
+            <pre>[2/4] full ... 26 passed
+[3/4] lint ... passed
+[4/4] type ... 0 errors</pre>
+          </div>
+        </div>
+
+        <nav class="source-links" aria-label="AI 개발 방식 참고 자료">
+          <a href="https://newsletter.kentbeck.com/p/canon-tdd" target="_blank" rel="noreferrer">Kent Beck · Canon TDD</a>
+          <a href="https://openai.com/index/harness-engineering/" target="_blank" rel="noreferrer">OpenAI · Harness Engineering</a>
+        </nav>
+      </div>
+    </section>
+
+    <section class="section section-alt" id="lab" aria-labelledby="lab-title">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">03 · Live API Lab</p>
+            <h2 id="lab-title">3 Contract Rule APIs (계약 규칙 API 3개)</h2>
+          </div>
+          <ul class="summary-lines single-line-points">
+            <li>운영 validator 세 가지를 데모 API로 축약했다.</li>
+            <li>focused test와 실제 HTTP 응답을 비교한다.</li>
+          </ul>
+        </div>
+
+        <div class="api-test-map" aria-label="실습할 pytest 코드 3개">
+          <article class="api-test-card">
+            <div class="api-test-copy">
+              <code>CASE 01 · FIELD BOUNDARY (필드 경계)</code>
+              <h3>Payment Terms (지급조건 검증)</h3>
+              <ul class="summary-lines compact-lines">
+                <li>지급 비율 합계는 100이어야 한다.</li>
+                <li>개별 비율이 음수면 422로 거절한다.</li>
+              </ul>
+            </div>
+            <pre>def test_rejects_negative_payment_percentage_even_when_sum_is_100():
+    response = client.post(
+        "/contracts/payment-terms/validate",
+        json={"advance_payment_percentage": -10, ...},
+    )
+    assert response.status_code == 422</pre>
+            <code class="test-command">uv run pytest tests/test_contract_payment_terms.py::test_rejects_negative_payment_percentage_even_when_sum_is_100 -vv</code>
+          </article>
+
+          <article class="api-test-card">
+            <div class="api-test-copy">
+              <code>CASE 02 · CONDITIONAL SHAPE (조건부 입력)</code>
+              <h3>Budget Shape (예산 입력 형태 검증)</h3>
+              <ul class="summary-lines compact-lines">
+                <li>확정 금액은 제작비·총예산을 함께 보낸다.</li>
+                <li>구간 예산과 섞지 않는다.</li>
+              </ul>
+            </div>
+            <pre>def test_accepts_confirmed_budget_with_production_and_total_amounts():
+    response = client.post(
+        "/contracts/budget/validate",
+        json={"budget_type": "CONFIRMED_AMOUNT", ...},
+    )
+    assert response.status_code == 200</pre>
+            <code class="test-command">uv run pytest tests/test_contract_budget.py::test_accepts_confirmed_budget_with_production_and_total_amounts -vv</code>
+          </article>
+
+          <article class="api-test-card">
+            <div class="api-test-copy">
+              <code>CASE 03 · DEPENDENT FIELD (의존 필드)</code>
+              <h3>Submission Material (계약 제출자료 검증)</h3>
+              <ul class="summary-lines compact-lines">
+                <li>첨부 양식에는 file_id가 필요하다.</li>
+                <li>파일이 없으면 422로 거절한다.</li>
+              </ul>
+            </div>
+            <pre>def test_rejects_attached_material_without_file_id():
+    response = client.post(
+        "/contracts/submission-material/validate",
+        json={"format_type": "ATTACHED_FORMAT", ...},
+    )
+    assert response.status_code == 422</pre>
+            <code class="test-command">uv run pytest tests/test_contract_submission_material.py::test_rejects_attached_material_without_file_id -vv</code>
+          </article>
+        </div>
+
+        <div class="lab-frame">
+          <div class="lab-toolbar">
+            <strong>Live Request (실행 중인 FastAPI에 직접 요청)</strong>
+            <span class="method" id="active-endpoint">3 POST endpoints · READY</span>
+          </div>
+
+          <div class="scenario-buttons" role="group" aria-label="계약 규칙 API 선택">
+            <button class="scenario-button" type="button" data-scenario="payment-range" aria-pressed="false">
+              <span class="scenario-title">Payment Terms (지급조건 검증)</span>
+              <span class="scenario-meta">POST /contracts/payment-terms/validate · Expected 422</span>
+            </button>
+            <button class="scenario-button" type="button" data-scenario="budget-shape" aria-pressed="false">
+              <span class="scenario-title">Budget Shape (예산 입력 형태 검증)</span>
+              <span class="scenario-meta">POST /contracts/budget/validate · Expected 200</span>
+            </button>
+            <button class="scenario-button" type="button" data-scenario="material-file" aria-pressed="false">
+              <span class="scenario-title">Submission Material (계약 제출자료 검증)</span>
+              <span class="scenario-meta">POST /contracts/submission-material/validate · Expected 422</span>
+            </button>
+          </div>
+
+          <div class="result-grid">
+            <section class="result-panel" aria-labelledby="status-label">
+              <div class="panel-head">
+                <span class="panel-label" id="status-label">Status</span>
+              </div>
+              <div class="status-body" aria-live="polite">
+                <span class="status-badge" id="status-badge">READY</span>
+                <div class="status-item">
+                  <span>Scenario</span>
+                  <strong id="status-scenario">선택 전</strong>
+                </div>
+                <div class="status-item">
+                  <span>Expected</span>
+                  <strong id="status-expected">-</strong>
+                </div>
+                <div class="status-item">
+                  <span>Actual</span>
+                  <strong id="status-actual">-</strong>
+                </div>
+              </div>
+            </section>
+
+            <section class="result-panel" aria-labelledby="request-label">
+              <div class="panel-head">
+                <span class="panel-label" id="request-label">Request</span>
+                <span class="method">JSON</span>
+              </div>
+              <pre id="request-output">시나리오를 선택하면 실제 요청이 표시됩니다.</pre>
+            </section>
+
+            <section class="result-panel" aria-labelledby="response-label">
+              <div class="panel-head">
+                <span class="panel-label" id="response-label">Response</span>
+                <span class="method" id="response-method">HTTP -</span>
+              </div>
+              <pre id="response-output">API 응답을 기다리고 있습니다.</pre>
+            </section>
+          </div>
+        </div>
+
+        <div class="lab-note">
+          <strong>Production scope (운영 코드와 데모의 범위)</strong>
+          <ul class="summary-lines single-line-points">
+            <li><code>PaymentTermsCommand</code>: 지급조건 규칙</li>
+            <li><code>BiddingContextCommand</code>: 예산 규칙</li>
+            <li><code>ContractSubmissionMaterialItemCommand</code>: 제출자료 규칙</li>
+            <li>데모는 DB·인증·알림을 제외한 validator만 분리한다.</li>
+            <li>운영 endpoint와 DB 흐름 전체를 복제하지 않는다.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="adoption" aria-labelledby="adoption-title">
+      <div class="container">
+        <div class="section-head">
+          <div>
+            <p class="section-kicker">04 · Why TDD Here</p>
+            <h2 id="adoption-title">우리 회사에 TDD가 필요한 이유와 적용 범위</h2>
+          </div>
+          <ul class="summary-lines single-line-points">
+            <li>운영 장애를 모두 테스트로 없앨 수는 없다.</li>
+            <li>코드로 재현 가능한 오류는 배포 전에 반복 검증할 수 있다.</li>
+          </ul>
+        </div>
+
+        <div class="adoption-subhead">
+          <div>
+            <span>WHY TDD · 필요한 이유</span>
+            <h3>현재 구조에서 테스트가 효과적인 세 지점</h3>
+          </div>
+          <p>멀티레포 경계·데이터 제약·리팩토링 회귀는 코드와 테스트로 반복 확인할 수 있다.</p>
+        </div>
+
+        <div class="situation-grid">
+          <article class="situation-item">
+            <span>01 · 멀티레포 구조</span>
+            <h3>저장소마다 기대 동작을 고정해야 한다</h3>
+            <p>각 저장소의 기대 동작과 연결 계약을 테스트로 고정한다.</p>
+          </article>
+          <article class="situation-item">
+            <span>02 · 숨은 데이터 제약</span>
+            <h3>코드만 보고 알기 어려운 조건이 있다</h3>
+            <p>기존 DB 데이터·내부 validator·상태 조합을 테스트 입력으로 재현한다.</p>
+          </article>
+          <article class="situation-item">
+            <span>03 · 리팩토링·디버깅</span>
+            <h3>오류 재현이 수정의 기준이 된다</h3>
+            <p>실패 테스트로 오류를 재현해 원인과 재발을 함께 확인한다.</p>
+          </article>
+        </div>
+
+        <div class="adoption-subhead">
+          <div>
+            <span>LIMITS · 적용 한계</span>
+            <h3>TDD를 과하게 기대하면 안 되는 세 가지</h3>
+          </div>
+          <p>TDD는 한 검증 계층이다. 운영·통합·배포 문제까지 혼자 해결하지 않는다.</p>
+        </div>
+
+        <div class="adoption-grid">
+          <article class="adoption-item">
+            <code>01 · 멀티레포 전체 해결</code>
+            <h3>저장소 연결 자체를 해결하지는 않는다</h3>
+            <p>배포 순서·버전·권한 연결은 계약 관리와 CI가 함께 다룬다.</p>
+          </article>
+          <article class="adoption-item">
+            <code>02 · 운영 환경 완전 복제</code>
+            <h3>실제 DB와 외부 환경을 모두 재현하지 못한다</h3>
+            <p>운영 DB·네트워크·외부 서비스는 integration·E2E·모니터링으로 보완한다.</p>
+          </article>
+          <article class="adoption-item">
+            <code>03 · 모든 코드 Test-first</code>
+            <h3>위험이 낮은 코드까지 강제하지 않는다</h3>
+            <p>단순 DTO·framework 동작보다 제약·규칙·오류·리팩토링부터 적용한다.</p>
+          </article>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="section section-alt" aria-labelledby="references-title">
+      <div class="container references">
+        <div>
+          <p class="section-kicker">Closing</p>
+          <p class="closing">
+            <span>AI 시대의 TDD는</span>
+            <span>테스트 대필 기술이 아니다.</span>
+            <span>사람의 의도를 실행 환경으로 만든다.</span>
+          </p>
+        </div>
+        <div>
+          <h2 id="references-title">참고 자료</h2>
+          <div class="reference-list">
+            <a href="https://newsletter.kentbeck.com/p/canon-tdd" target="_blank" rel="noreferrer"><strong>Canon TDD</strong><span>테스트 목록에서 하나씩 진행하는 Kent Beck의 TDD 흐름</span></a>
+            <a href="https://www.youtube.com/watch?v=sMujMp4h_EY&amp;t=24s" target="_blank" rel="noreferrer"><strong>YOW! 2025 · Kent Beck</strong><span>AI 시대 TDD의 답은 아직 정립되지 않았다는 문제 제기</span></a>
+            <a href="https://www.youtube.com/watch?v=aSXaxOdVtAQ&amp;t=3024s" target="_blank" rel="noreferrer"><strong>The Pragmatic Engineer Interview</strong><span>AI가 실패한 테스트를 바꾸려 한 실제 작업 사례</span></a>
+            <a href="https://www.youtube.com/watch?v=arn6hqERKn4&amp;t=366s" target="_blank" rel="noreferrer"><strong>GitHub Official · Copilot TDD</strong><span>요구조건에서 테스트를 만들고 RED와 GREEN을 확인하는 공식 예시</span></a>
+            <a href="https://github.blog/ai-and-ml/github-copilot/github-for-beginners-test-driven-development-tdd-with-github-copilot/" target="_blank" rel="noreferrer"><strong>GitHub Blog · TDD with Copilot</strong><span>GitHub의 단계별 설명과 프롬프트 예시</span></a>
+            <a href="https://fastapi.tiangolo.com/tutorial/testing/" target="_blank" rel="noreferrer"><strong>FastAPI Testing</strong><span>TestClient 공식 문서</span></a>
+            <a href="https://playwright.dev/docs/test-agents" target="_blank" rel="noreferrer"><strong>Playwright Agents</strong><span>Planner · Generator · Healer 공식 문서</span></a>
+            <a href="https://openai.com/index/harness-engineering/" target="_blank" rel="noreferrer"><strong>Harness Engineering</strong><span>AI가 저장소의 지식·도구·피드백을 사용하게 하는 별도 개념</span></a>
+            <a href="https://arxiv.org/abs/2603.17973" target="_blank" rel="noreferrer"><strong>TDAD</strong><span>소스와 테스트의 영향 분석 연구 · 현재 데모에는 미적용</span></a>
+          </div>
+        </div>
+      </div>
+    </section>
   </main>
 
+  <footer>
+    <div class="container footer-inner">
+      <span>TVCF AI-TDD Harness · interactive API demo</span>
+      <span>TVCF AI-TDD Working Demo</span>
+    </div>
+  </footer>
+
   <script>
+    const videoTabs = [...document.querySelectorAll("[data-video-key]")];
+    const briefingVideo = document.querySelector("#briefing-video");
+    const videoPanel = document.querySelector("#video-panel");
+    const videoKicker = document.querySelector("#video-kicker");
+    const videoHeading = document.querySelector("#video-heading");
+    const videoPoints = document.querySelector("#video-points");
+    const videoFallback = document.querySelector("#video-fallback");
+
+    function selectVideo(tab, shouldFocus = false) {
+      videoTabs.forEach((item) => {
+        const selected = item === tab;
+        item.setAttribute("aria-selected", String(selected));
+        item.tabIndex = selected ? 0 : -1;
+      });
+
+      briefingVideo.src = tab.dataset.videoSrc;
+      briefingVideo.title = tab.dataset.videoTitle;
+      videoPanel.setAttribute("aria-labelledby", tab.id);
+      videoKicker.textContent = tab.dataset.videoKicker;
+      videoHeading.textContent = tab.dataset.videoHeading;
+      videoFallback.href = tab.dataset.videoWatch;
+
+      const points = [
+        tab.getAttribute("data-video-point-1"),
+        tab.getAttribute("data-video-point-2"),
+        tab.getAttribute("data-video-point-3")
+      ];
+      videoPoints.replaceChildren(...points.map((point) => {
+        const item = document.createElement("li");
+        item.textContent = point;
+        return item;
+      }));
+
+      if (shouldFocus) {
+        tab.focus();
+      }
+    }
+
+    videoTabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => selectVideo(tab));
+      tab.addEventListener("keydown", (event) => {
+        if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+          event.preventDefault();
+          const offset = event.key === "ArrowRight" ? 1 : -1;
+          const nextIndex = (index + offset + videoTabs.length) % videoTabs.length;
+          selectVideo(videoTabs[nextIndex], true);
+        }
+      });
+    });
+
     const buttons = [...document.querySelectorAll("[data-scenario]")];
     const requestOutput = document.querySelector("#request-output");
     const responseOutput = document.querySelector("#response-output");
     const responseMethod = document.querySelector("#response-method");
+    const activeEndpoint = document.querySelector("#active-endpoint");
     const statusBadge = document.querySelector("#status-badge");
     const statusScenario = document.querySelector("#status-scenario");
     const statusExpected = document.querySelector("#status-expected");
     const statusActual = document.querySelector("#status-actual");
 
     const scenarios = {
-      valid: {
-        label: "Valid Terms (정상 지급조건)",
+      "payment-range": {
+        label: "Payment Terms (지급조건 검증)",
+        path: "/contracts/payment-terms/validate",
+        expected: 422,
+        body: {
+          advance_payment_percentage: -10,
+          interim_payment_percentage: 50,
+          final_payment_percentage: 60,
+          advance_timing: "CONTRACT_SIGNED",
+          interim_timing: "PLAN_CONFIRMED",
+          final_timing: "FINAL_DELIVERY"
+        }
+      },
+      "budget-shape": {
+        label: "Budget Shape (예산 입력 형태 검증)",
+        path: "/contracts/budget/validate",
         expected: 200,
         body: {
-          advance_payment_percentage: 30,
-          interim_payment_percentage: 30,
-          final_payment_percentage: 40,
-          advance_timing: "CONTRACT_SIGNED",
-          interim_timing: "PLAN_CONFIRMED",
-          final_timing: "FINAL_DELIVERY"
+          budget_type: "CONFIRMED_AMOUNT",
+          production_cost: 80000000,
+          total_budget: 250000000
         }
       },
-      "invalid-total": {
-        label: "Invalid Total (합계 오류)",
+      "material-file": {
+        label: "Submission Material (계약 제출자료 검증)",
+        path: "/contracts/submission-material/validate",
         expected: 422,
         body: {
-          advance_payment_percentage: 20,
-          interim_payment_percentage: 30,
-          final_payment_percentage: 40,
-          advance_timing: "CONTRACT_SIGNED",
-          interim_timing: "PLAN_CONFIRMED",
-          final_timing: "FINAL_DELIVERY"
-        }
-      },
-      "invalid-order": {
-        label: "Invalid Order (순서 오류)",
-        expected: 422,
-        body: {
-          advance_payment_percentage: 30,
-          interim_payment_percentage: 30,
-          final_payment_percentage: 40,
-          advance_timing: "PLAN_CONFIRMED",
-          interim_timing: "CONTRACT_SIGNED",
-          final_timing: "FINAL_DELIVERY"
+          material_type: "NDA",
+          format_type: "ATTACHED_FORMAT"
         }
       }
     };
@@ -792,10 +2501,11 @@
         button.setAttribute("aria-pressed", String(button === activeButton));
       });
       statusBadge.className = "status-badge running";
-      statusBadge.textContent = "RUNNING (실행 중)";
+      statusBadge.textContent = "RUNNING";
       statusScenario.textContent = scenario.label;
       statusExpected.textContent = String(scenario.expected);
       statusActual.textContent = "요청 중";
+      activeEndpoint.textContent = `POST ${scenario.path}`;
       responseMethod.textContent = "HTTP ...";
       responseOutput.textContent = "API 요청을 실행하고 있습니다.";
     }
@@ -806,19 +2516,17 @@
       });
     }
 
-    function formatRequest(body) {
+    function formatRequest(scenario) {
       return JSON.stringify({
         method: "POST",
-        path: "/contracts/payment-terms/validate",
-        body
+        path: scenario.path,
+        body: scenario.body
       }, null, 2);
     }
 
     async function readResponse(response) {
       const text = await response.text();
-      if (!text) {
-        return null;
-      }
+      if (!text) return null;
       try {
         return JSON.parse(text);
       } catch {
@@ -829,10 +2537,10 @@
     async function runScenario(activeButton) {
       const scenario = scenarios[activeButton.dataset.scenario];
       setRunningState(activeButton, scenario);
-      requestOutput.textContent = formatRequest(scenario.body);
+      requestOutput.textContent = formatRequest(scenario);
 
       try {
-        const response = await fetch("/contracts/payment-terms/validate", {
+        const response = await fetch(scenario.path, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(scenario.body)
@@ -844,13 +2552,13 @@
         };
         const passed = response.status === scenario.expected;
         statusBadge.className = `status-badge ${passed ? "pass" : "fail"}`;
-        statusBadge.textContent = passed ? "PASS (기대 일치)" : "FAIL (기대 불일치)";
+        statusBadge.textContent = passed ? "PASS" : "FAIL";
         statusActual.textContent = String(response.status);
         responseMethod.textContent = `HTTP ${response.status}`;
         responseOutput.textContent = JSON.stringify(exchange, null, 2);
       } catch (error) {
         statusBadge.className = "status-badge fail";
-        statusBadge.textContent = "ERROR (연결 실패)";
+        statusBadge.textContent = "ERROR";
         statusActual.textContent = "요청 실패";
         responseMethod.textContent = "HTTP ERROR";
         responseOutput.textContent = JSON.stringify({

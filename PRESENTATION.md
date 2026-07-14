@@ -1,266 +1,428 @@
-# AI-assisted TDD 발표 스크립트
+# TVCF AI-TDD Harness 발표 대본
 
-## 발표 전 실행
+## 발표 원칙
 
-Git Bash 창 하나에서:
+- 기존 테스트 작성자나 프로젝트를 평가하지 않는다.
+- 테스트 개수나 팀별 점수를 비교하지 않는다.
+- 영어 도구명과 코드 용어는 유지하고 바로 뒤에서 한글로 의미를 설명한다.
+- 웹페이지에는 청중이 다시 볼 내용만 두고, 발표자 주의사항은 이 대본에서만 확인한다.
+- 실습 API는 실제 AdMarket 업무 규칙을 축약한 데모이며 운영 endpoint 전체가 아니다.
+
+## 발표 전 준비
+
+Git Bash 첫 번째 창:
 
 ~~~bash
-cd /c/Users/tvcf_project/AI_TDD_FastAPI_Demo
+cd /c/Users/gram/tvcf/AI_TEST_CODE
 uv sync
-uv run pytest
+uv run python scripts/tdd_harness.py check
 uv run uvicorn app.main:app --reload --host 127.0.0.1 --port 8000
 ~~~
 
-브라우저에서 <http://127.0.0.1:8000>을 연다.
+브라우저:
 
-검증용 Git Bash 창을 하나 더 열어 둔다.
+~~~text
+http://127.0.0.1:8000
+~~~
+
+Git Bash 두 번째 창:
 
 ~~~bash
-cd /c/Users/tvcf_project/AI_TDD_FastAPI_Demo
+cd /c/Users/gram/tvcf/AI_TEST_CODE
 ~~~
+
+영상 재생을 위해 회사 네트워크에서 `youtube-nocookie.com` 접근이 되는지 미리 확인한다.
+화면 배율은 브라우저 90~100%, 터미널 글자는 16px 안팎으로 둔다.
 
 ---
 
-## 0:00–0:50 — 기: 왜 이 주제를 골랐는가
+## 0:00-6:00 - 목표와 테스트의 현실
 
-> 오늘 발표할 내용은 AI가 FastAPI 안에서 동작하는 기능이 아닙니다.
-> AI 코딩 에이전트에게 실제 업무 코드를 맡길 때, 어떻게 범위를 통제하고
-> 결과를 신뢰할 것인가에 대한 개발 방식입니다.
+첫 화면에서 질문을 던진다.
+
+> 오늘 질문은 AI가 테스트 코드를 작성할 수 있는가가 아닙니다. Claude나 Codex가
+> 완료했다고 말했을 때, 그 변경이 실제 업무 규칙을 지킨다는 것을 어떻게 다시
+> 확인할 것인가가 오늘의 질문입니다.
+
+Hero의 네 문장을 위에서 아래로 연결한다.
+
+1. AI가 코드를 빨리 만들수록 정답을 판단할 기준이 더 중요해진다.
+2. 테스트는 오류 검사뿐 아니라 업무 의도와 완료 조건을 AI에게 전달한다.
+3. Frontend와 Backend는 같은 테스트 파일 대신 API 계약과 핵심 시나리오를 공유한다.
+4. 오늘은 작은 계약 API와 Repository Harness로 이 기준이 작동하는지 확인한다.
+
+이어서 아래의 세 역할을 짧게 읽는다.
+
+1. 사람은 업무 정답과 경계값을 승인한다.
+2. AI는 승인된 다음 테스트 하나를 구현한다.
+3. focused test와 full gate 결과가 완료를 판정한다.
+
+`Start Here` 구간으로 이동해 목표 문장을 읽는다.
+
+> 오늘의 목표는 AI가 변경한 코드가 기대한 업무 규칙을 지키는지 재현 가능한 테스트와
+> 실제 HTTP 응답으로 증명하는 것입니다.
+
+### Strengths (장점)
+
+> Frontend와 Backend에는 빠른 테스트, 통합 테스트와 저장소 규칙 검사처럼 서로 다른
+> 검증 층이 있습니다. 작은 로직은 빠르게 확인하고, 브라우저·API·DB 경계는 통합
+> 테스트로, 공통 구조는 harness로 확인할 수 있습니다.
 >
-> 처음에는 일반적인 예약 충돌 예제로 만들었습니다. 이해는 쉬웠지만 제가 해 온
-> AdMarket 업무와 연결되지 않아 경험을 말하기 어려웠습니다. 그래서 실제
-> AdMarket 테스트에서 계약 지급조건 규칙을 가져와 작은 실습으로 다시 만들었습니다.
+> 지급 비율이나 예산 조합처럼 말로 설명하던 규칙이 테스트가 되면 누구나 같은 명령으로
+> 다시 확인할 수 있습니다.
+
+### Trade-offs (고려사항)
+
+> 테스트가 많다고 항상 편한 것은 아닙니다. DB, 인증과 외부 연동이 들어가면 데이터
+> 준비와 실행 시간이 늘어납니다. Mock은 빠르지만 실제 연동 차이를 놓칠 수 있습니다.
 >
-> 핵심 문장은 하나입니다. AI가 구현 속도를 높이고, 사람이 승인한 테스트가
-> AI의 행동 범위를 통제합니다.
+> 그래서 모든 테스트를 매번 무작정 실행하기보다 변경 코드와 가까운 테스트를 먼저
+> 찾고, 마지막에 전체 gate를 실행하는 순서가 필요합니다.
 
-`AI-assisted TDD`는 Kent Beck이 별도로 명명한 공식 방법론이 아니다.
-[Canon TDD](https://newsletter.kentbeck.com/p/canon-tdd)의 흐름을 AI 코딩 작업에
-적용한 이 프로젝트의 설명이다.
+이 구간에서는 프로젝트명, 구체 파일이나 작성자를 언급하거나 평가하지 않는다.
 
-## 0:50–1:40 — 실제 AdMarket 경험과 연결
+---
 
-화면 오른쪽의 `AdMarket Contract Payment Terms`를 가리킨다.
+## 6:00-13:00 - 세 영상으로 질문, 위험, 공식 사례 비교
 
-> 광고 계약에는 선금, 중도금, 잔금이 있습니다. 여기에는 단순 CRUD보다 중요한
-> 업무 규칙이 있습니다.
->
-> 첫째, 세 비율의 합계는 정확히 100이어야 합니다.
-> 둘째, 세 지급 시점은 중복될 수 없습니다.
-> 셋째, 계약 체결보다 기획 확정이 먼저 오는 식으로 지급 순서가 뒤집힐 수 없습니다.
+`세 관점으로 비교하는 AI 시대 TDD` 구간으로 이동한다.
 
-실제 근거는 다음 두 곳이다.
+> 첫 영상은 아직 정답이 정립되지 않았다는 질문, 두 번째 인터뷰는 AI가 테스트를
+> 바꾸려 한 위험, 세 번째 GitHub 공식 영상은 요구조건에서 RED와 GREEN으로 가는
+> 작업 순서를 보여줍니다. 각 영상의 핵심 구간만 보겠습니다.
 
-~~~text
-admarket_fastapi_BE/tests/unittests/contract/service_test.py
-  └─ TestPaymentTermsCommandValidation
+### Video 1 - 문제 제기 (`0:24~1:16`, 52초)
 
-admarket_fastapi_BE/app/contract/application/command.py
-  └─ PaymentTermsCommand.validate_payment_split()
-~~~
+첫 번째 `01 · 문제 제기` 탭에서 YOW! 2025 영상을 재생한다.
 
-> 운영 코드를 통째로 복사하지는 않았습니다. DB, 인증, 계약 저장, 알림은 발표
-> 핵심이 아니어서 제외하고, 제가 설명할 수 있는 업무 불변조건과 테스트 사례만
-> 현재 데모로 옮겼습니다.
+> 켄트 벡이 AI가 보강된 개발과 TDD를 어떻게 함께 해야 하는지 묻는 장면입니다.
+> 지금 업계에 하나로 정립된 답이 있는지에 집중해 보겠습니다.
 
-## 1:40–2:30 — 세 역할
+멈춘 뒤 세 요점을 짚는다.
 
-화면 상단의 세 카드를 왼쪽부터 설명한다.
+1. 프로그래밍 방식은 AI로 빠르게 변하고 있다.
+2. AI와 TDD의 올바른 순서에는 아직 합의된 정답이 없다.
+3. 각 팀이 직접 실험하며 작업 기준을 찾아야 한다.
 
-> AI Agent는 사람이 승인한 `plan.md`의 다음 테스트 하나에 필요한 코드를 제안합니다.
->
-> Human은 합계가 100이어야 한다는 것처럼 업무 정답과 기대 결과를 결정하고,
-> 테스트와 diff를 검토합니다.
->
-> pytest는 같은 입력으로 코드를 반복 실행해 통과 여부를 판정합니다.
-> AI가 “완료했습니다”라고 말하는 것은 증거가 아닙니다.
+연결 문장:
 
-~~~text
-실제 업무 규칙
-      ↓
-사람이 승인한 테스트 하나
-      ↓
-의도한 행동 차이로 실패하는 RED
-      ↓
-AI의 최소 구현
-      ↓
-focused pytest → full pytest
-      ↓
-사람의 diff·설계 검토
-~~~
+> 정답이 정립되지 않았다는 말만으로는 작업 기준을 만들 수 없습니다. 다음 인터뷰에서
+> AI와 함께 테스트를 사용할 때 실제로 어떤 위험이 있었는지 보겠습니다.
 
-## 2:30–3:35 — 승: RED → GREEN → REFACTOR
+### Video 2 - 위험 확인 (`50:24~51:58`, 94초)
 
-화면 왼쪽의 세 카드를 가리킨다.
+두 번째 `02 · 위험 확인` 탭을 선택해 The Pragmatic Engineer 인터뷰를 재생한다.
 
-> 합계 오류 사이클을 예로 들겠습니다.
->
-> RED에서 20%, 30%, 40%, 즉 합계 90인 요청은 422여야 한다는 테스트를 먼저
-> 작성했습니다. 당시 API는 입력을 그대로 승인했기 때문에 실제 200이 나왔습니다.
-> 기대 422, 실제 200이라는 업무 행동 차이가 유효한 RED입니다.
->
-> 서버가 안 켜지거나 import가 실패한 것은 RED가 아닙니다. 제품 행동까지 도달하지
-> 못한 환경 오류이기 때문입니다.
->
-> GREEN에서는 실패한 테스트를 바꾸지 않고 세 비율의 합계가 100인지 확인하는
-> 조건만 추가했습니다. 다음 규칙인 중복과 순서는 각각 별도의 테스트 사이클로
-> 진행했습니다.
->
-> 모든 테스트가 통과한 뒤에만 이름과 구조를 정리합니다. 이때 새 동작을 섞지
-> 않는 단계가 REFACTOR입니다.
+> 테스트는 AI가 놓친 기대값을 전달하는 좋은 수단입니다. 하지만 인터뷰에서는 AI가
+> 실패를 해결하는 대신 테스트 자체를 바꾸려 한 사례도 나옵니다.
 
-실제 기록은 [docs/TDD_CYCLES.md](docs/TDD_CYCLES.md)에 있다.
+멈춘 뒤 세 요점을 짚는다.
+
+1. 테스트는 AI가 놓친 기대 결과를 구체적으로 전달한다.
+2. AI는 실패를 해결하는 과정에서 테스트를 바꾸려 할 수 있다.
+3. 사람이 승인한 expected value는 임의로 움직이면 안 되는 경계다.
+
+연결 문장:
+
+> AI가 제품 코드와 채점 기준을 동시에 바꾸면 검증이 약해집니다. 이제 GitHub가 공식
+> 가이드에서 요구조건, 테스트와 구현의 순서를 어떻게 보여주는지 비교하겠습니다.
+
+### Video 3 - GitHub 공식 사례 (`6:06~7:24`, 78초)
+
+세 번째 `03 · GitHub 공식 사례` 탭을 선택한다. 영상 제목은
+`Test-driven development with GitHub Copilot: A beginner's practical guide`다.
+
+> GitHub 공식 채널의 2025년 영상입니다. 아직 존재하지 않는 username validator를
+> 예로 들어, 개발자가 요구조건을 먼저 주고 Copilot을 사용하는 장면만 보겠습니다.
+
+재생하면서 다음 순서를 확인한다.
+
+1. `6:06` - 아직 존재하지 않는 함수의 요구조건을 개발자가 먼저 설명한다.
+2. `6:45` - Copilot이 그 요구조건을 기준으로 테스트를 생성한다.
+3. `6:49` - 함수가 없으므로 테스트가 실패하는 RED를 확인한다.
+4. `6:55` - 구현 생성을 요청하고 코드를 반영한다.
+5. `7:11` - 테스트를 다시 실행해 GREEN을 확인한다.
+
+세 영상을 한 문장으로 정리한다.
+
+> 정답은 아직 정립되지 않았고, AI가 테스트까지 바꾸는 위험도 있습니다. 공통으로
+> 가져갈 기준은 사람이 요구조건과 기대값을 정하고, 실제 test runner의 RED와 GREEN이
+> 다음 단계를 결정하게 만드는 것입니다.
+
+영상이 재생되지 않으면 현재 탭의 `YouTube 원본 전체 영상에서 보기` 링크를 사용한다.
+세 영상 탭은 클릭하거나 좌우 방향키로 이동할 수 있다.
+
+---
+
+## 13:00-18:00 - Frontend와 Backend 테스트 구성
+
+상단 `01 · 테스트 구성`을 선택한다.
+
+발표할 때만 다음 범위를 밝힌다.
+
+> TVCF Main과 AdMarket Frontend는 제가 만든 코드가 아니므로 도구와 테스트 역할만
+> 포괄적으로 설명하겠습니다. 직접 코드와 API로 설명할 범위는 AdMarket Backend에서
+> 가져온 계약 규칙입니다.
+
+### Frontend 테스트
+
+> Jest와 Vitest는 상태 계산, 데이터 변환과 조건 분기처럼 브라우저 없이 확인할 수
+> 있는 로직에 빠른 피드백을 줍니다. Playwright는 렌더링, 버튼 상태, 오류 UI와 여러
+> 화면으로 이어지는 사용자 흐름을 실제 브라우저에서 확인합니다.
+
+### Backend 테스트
+
+> pytest unit test는 계산 규칙, 입력 경계와 상태 전이를 빠르게 확인합니다.
+> integration과 e2e는 API 상태 코드, 응답 계약과 DB 연동을 확인하고, harness는
+> architecture나 OpenAPI처럼 저장소가 지켜야 하는 규칙을 확인합니다.
+
+공통 품질 기준을 읽는다.
+
+> Frontend와 Backend가 같은 테스트 파일을 관리하자는 뜻은 아닙니다. 각자 테스트를
+> 소유하되 API 계약, 핵심 시나리오와 재현 가능한 결과를 공유하자는 뜻입니다.
+
+---
+
+## 18:00-26:00 - AI와 TDD를 연결하는 실제 작업 순서
+
+상단 `02 · 작업 흐름`을 선택한다.
+
+먼저 위쪽 두 칸에서 아이디어의 출처를 구분한다.
+
+> Kent Beck에게서는 테스트 목록 중 하나를 선택해 RED와 GREEN으로 진행하는 순서를
+> 가져왔습니다. OpenAI의 Harness Engineering에서는 AI가 저장소의 문서, 도구와 테스트를
+> 직접 사용할 수 있게 환경을 구성한다는 아이디어를 참고했습니다.
+
+두 출처를 차례로 설명한다.
+
+1. Kent Beck의 Canon TDD는 테스트할 시나리오 목록을 만들고, 그중 하나만 실행 가능한
+   테스트로 만든 뒤 통과시키고 필요하면 리팩터링하는 흐름이다.
+2. OpenAI의 Harness Engineering은 TDD 기법이 아니라, AI가 저장소의 문서·도구·테스트와
+   피드백을 직접 사용할 수 있도록 작업 환경을 구성하는 개념이다.
+
+이어서 `현재 저장소의 Markdown 문서` 두 칸을 왼쪽부터 짚는다.
+
+1. `plan.md`는 **무엇을 할지** 정하는 문서다. 사람이 승인한 테스트 목록과 다음에
+   진행할 항목을 두고, focused 테스트와 전체 테스트가 통과한 뒤 완료 처리한다.
+2. `AGENTS.md`는 **어떻게 작업할지** 정하는 문서다. AI가 테스트 하나만 선택하고,
+   유효한 RED를 확인하며, 테스트를 약하게 만들지 않고 최소 구현으로 GREEN을 만들도록
+   10개 규칙을 둔다.
+
+이어서 `실행 가능한 최소 Repository Harness` 세 칸을 짚는다.
+
+1. `harness.toml`은 두 문서의 경로와 focused·full·lint·type 명령 순서를 선언한다.
+2. `scripts/tdd_harness.py`는 설정을 읽어 명령을 순서대로 실행하고 첫 실패에서 중단한다.
+3. `.harness/latest-run.json`은 실행 명령, 종료 코드, 소요 시간과 최종 상태를 자동 기록한다.
+
+> Markdown 문서 자체가 명령을 실행하는 것은 아닙니다. `harness.toml`이 무엇을 연결할지
+> 선언하고 `tdd_harness.py`가 실제 검증을 실행합니다. 업무 기대값과 RED 실패 이유는
+> 사람이 판단하고, 자동 생성된 JSON 결과와 실제 diff를 함께 확인합니다.
+
+연결 상태를 먼저 확인한다.
 
 ~~~bash
-uv run pytest tests/test_contract_payment_terms.py::test_rejects_payment_percentage_sum_not_100 -vv
-uv run pytest
+uv run python scripts/tdd_harness.py check
 ~~~
 
-## 3:35–5:05 — 전: 실제 API 세 가지 실행
+화면과 같은 두 문서 경로, 네 품질 게이트와 `.harness/latest-run.json`이 출력되는지 본다.
 
-### 1. Valid Terms (정상 지급조건)
+화면의 `문서가 쓰이는 순서`를 그대로 읽는다.
 
-`Valid Terms` 버튼을 누른다.
+> 사람 승인, plan.md에서 하나 선택, AGENTS.md 규칙으로 RED와 GREEN, 전체 검증,
+> 실행 증거 기록 순서입니다.
 
-> 선금 30, 중도금 30, 잔금 40이고 지급 시점도 정상 순서입니다.
-> 화면의 JavaScript가 지금 실행 중인 FastAPI의
-> `POST /contracts/payment-terms/validate`를 호출했습니다.
-> 기대값과 실제값이 모두 200이므로 PASS입니다.
+화면의 네 단계를 짚는다.
 
-Request와 Response 패널의 JSON을 가리킨다.
+### 1. 기대 결과 정하기
 
-### 2. Invalid Total (합계 오류)
+> 합계는 100이어야 한다처럼 사람이 동작과 기대값을 먼저 정합니다. AI가 제품 코드를
+> 보고 업무 정답을 역으로 추측하게 두지 않습니다. 승인한 항목은 `plan.md`에서 하나만
+> 선택합니다.
 
-`Invalid Total` 버튼을 누른다.
+### 2. RED - 실패 확인하기
 
-> 이번에는 20, 30, 40으로 합계가 90입니다. HTTP 형식은 맞지만 계약 업무
-> 규칙에는 맞지 않으므로 422입니다. 응답의 Pydantic validation detail에서
-> `payment percentages must sum to 100`을 확인할 수 있습니다.
+> AI가 테스트 하나를 작성하고 실행합니다. import 오류나 환경 오류가 아니라 아직
+> 구현되지 않은 업무 동작 때문에 실패해야 유효한 RED입니다. 이것이 `AGENTS.md`의
+> 2번 규칙입니다.
 
-### 3. Invalid Order (순서 오류)
-
-`Invalid Order` 버튼을 누른다.
-
-> 선금 지급 시점을 기획 확정으로 두고 중도금 지급 시점을 계약 체결로 두었습니다.
-> 금액 합계는 100이지만 시간 순서가 뒤집혔기 때문에 422입니다.
->
-> 합계 테스트만 있었다면 이 결함은 놓칩니다. 서로 다른 업무 이유는 서로 다른
-> 테스트로 고정해야 실패 원인을 바로 알 수 있습니다.
-
-지급 시점 중복 사례도 터미널 테스트로 고정되어 있다.
+제품 코드를 수정하기 전에 터미널에서 다음 명령을 실행한다.
 
 ~~~bash
-uv run pytest tests/test_contract_payment_terms.py::test_rejects_duplicate_payment_timings -vv
+uv run python scripts/tdd_harness.py verify --focused tests/test_contract_budget.py::test_accepts_confirmed_budget_with_production_and_total_amounts
 ~~~
 
-## 5:05–5:55 — 코드가 실제로 돌아가는 위치
+> 하네스는 먼저 이 테스트 하나만 실행합니다. 실패하면 다음 명령을 실행하지 않고
+> `STOP: focused failed`를 출력합니다. 이때 expected와 actual을 보고 아직 구현되지 않은
+> 업무 동작 때문에 실패한 유효한 RED인지 사람이 확인합니다.
 
-`app/main.py`를 열어 다음 순서로 설명한다.
+### 3. GREEN - 최소 코드 수정하기
 
-> `ContractPaymentTiming`은 API가 받을 수 있는 네 개의 지급 시점을 제한합니다.
->
-> `ContractPaymentTerms`는 여섯 개 필드를 받고 하나의 정책 validator에서 합계,
-> 중복, 시간 순서를 차례로 판정합니다.
->
-> FastAPI는 route 함수에 들어가기 전에 Pydantic 모델을 검증합니다. 검증에
-> 실패하면 route 본문은 실행되지 않고 422가 반환됩니다. 모두 통과한 경우에만
-> route가 검증된 입력을 200으로 반환합니다.
+> 실패한 테스트는 바꾸지 않습니다. 그 테스트를 통과시키는 데 필요한 제품 코드만
+> 수정하고 같은 verify 명령을 다시 실행합니다. `AGENTS.md`의 3~5번 규칙이 이 구간에서
+> AI의 수정 범위를 제한합니다.
 
-핵심 코드는 다음 의미다.
+### 4. 전체 확인하기
 
-~~~python
-total = advance + interim + final
-if total != 100:
-    raise ValueError(...)
+> focused가 GREEN이면 하네스가 `harness.toml`에 적힌 full suite, Ruff, Pyright를 이어서
+> 실행합니다. 하나라도 실패하면 그 자리에서 멈춥니다. 모두 통과하면
+> `.harness/latest-run.json`을 열어 네 단계의 명령과 종료 코드를 확인합니다. 결과와 실제
+> diff가 승인한 기대 동작에 맞으면 `plan.md` 항목을 완료합니다.
 
-if len(set(timings)) != len(timings):
-    raise ValueError(...)
+Spec Kit과 TDAD는 이 데모에 설치된 구성요소가 아니라 추가 참고 자료이므로 이 작업
+순서를 설명할 때는 언급하지 않는다.
 
-if positions != sorted(positions):
-    raise ValueError(...)
-~~~
+---
 
-> 파일을 여러 레이어로 나누지 않은 이유는 운영 아키텍처를 재현하는 것이 아니라
-> AI-TDD의 짧은 피드백 루프를 보여주는 프로젝트이기 때문입니다.
+## 26:00-37:00 - pytest 3개와 실제 API 3개
 
-## 5:55–6:35 — 결: 실행 증거
+상단 `03 · 실습`을 선택한다.
 
-두 번째 Git Bash 창에서 실행한다.
+> 세 규칙은 실제 AdMarket의 PaymentTermsCommand, BiddingContextCommand,
+> ContractSubmissionMaterialItemCommand에서 가져왔습니다. 운영 API 전체를 복제한
+> 것이 아니라 validator를 설명할 수 있게 분리한 데모입니다.
+
+### Case 1 - Payment Terms (지급조건 검증)
+
+업무 규칙:
+
+> `-10 + 50 + 60`은 합계만 보면 100이지만 음수 지급 비율은 허용할 수 없습니다.
+> Pydantic의 `Field(..., ge=0)` 경계가 이 요청을 거절해야 합니다.
+
+focused 명령:
 
 ~~~bash
-uv run pytest tests/test_contract_payment_terms.py -vv
-uv run pytest
-uv run ruff check .
-uvx pyright
+uv run pytest tests/test_contract_payment_terms.py::test_rejects_negative_payment_percentage_even_when_sum_is_100 -vv
 ~~~
 
-> focused suite는 계약 규칙만 빠르게 확인합니다. 이어서 full suite로 발표 화면과
-> OpenAPI 계약까지 회귀가 없는지 확인합니다. Ruff와 Pyright는 스타일과 타입
-> 문제를 별도로 확인합니다.
->
-> 이 출력이 완료 증거입니다. AI의 자연어 설명은 보조 자료이고, 같은 명령을
-> 누구나 다시 실행할 수 있어야 합니다.
+`Payment Terms` 버튼을 누른다. Request의 `-10`과 Response의 `422`, PASS를 확인한다.
 
-## 6:35–7:10 — 한계와 팀 적용
+### Case 2 - Budget Shape (예산 입력 형태 검증)
 
-> 이 데모가 TDD의 생산성 향상을 정량적으로 증명하는 것은 아닙니다.
-> AI가 만든 테스트가 자동으로 정답이 되는 것도 아닙니다.
->
-> 대신 기존 서비스의 작은 업무 규칙 하나를 골라 재현 테스트를 먼저 만들고,
-> focused test와 full suite를 CI 필수 체크로 만드는 시작 방법을 보여줍니다.
->
-> 결론적으로 AI는 판단 기준이 아니라 구현 가속기입니다. 무엇이 맞는지는 사람이
-> 정하고, 테스트와 리뷰가 그 기준을 반복 가능하게 만듭니다.
+업무 규칙:
 
-## 질문을 받았을 때
+> `CONFIRMED_AMOUNT` 방식은 `production_cost`와 `total_budget`을 함께 보냅니다.
+> 이 정상 요청은 200이어야 합니다. 반대로 구간 예산을 섞으면 별도 테스트에서
+> 422로 거절합니다.
 
-### AI와 정확히 무슨 관계인가요?
+focused 명령:
 
-AI가 API 요청을 처리하는 것이 아니라 개발자처럼 테스트와 제품 코드를 작성한다.
-`AGENTS.md`가 작업 순서를 제한하고, 사람과 `pytest`가 결과를 승인한다.
+~~~bash
+uv run pytest tests/test_contract_budget.py::test_accepts_confirmed_budget_with_production_and_total_amounts -vv
+~~~
 
-### 왜 실제 AdMarket API를 그대로 복사하지 않았나요?
+`Budget Shape` 버튼을 누른다. 두 금액과 Response `200`, PASS를 확인한다.
 
-실제 계약 생성은 DB, 권한, 제안 선택, 알림 등 여러 관심사가 연결된다. 발표에서는
-지급조건 규칙의 TDD 흐름을 선명하게 보여주기 위해 순수 정책만 추출했다.
+### Case 3 - Submission Material (계약 제출자료 검증)
 
-### 이것도 결국 Pydantic validation 아닌가요?
+업무 규칙:
 
-맞다. 중요한 것은 라이브러리가 아니라 “합계 100, 중복 금지, 시간 순서”라는
-업무 규칙을 테스트로 먼저 고정했다는 점이다. Pydantic은 그 규칙을 HTTP 경계에서
-실행하는 구현 수단이다.
+> `ATTACHED_FORMAT`은 파일을 첨부하는 형식이므로 `file_id`가 필요합니다. 형식만
+> 첨부로 보내고 파일 ID를 누락한 요청은 422여야 합니다.
 
-### 테스트도 AI가 만들면 의미가 없지 않나요?
+focused 명령:
 
-AI가 초안을 낼 수는 있지만 업무 규칙과 기대 status는 사람이 검토하고 승인한다.
-테스트 실행 결과와 diff를 함께 확인해야 한다.
+~~~bash
+uv run pytest tests/test_contract_submission_material.py::test_rejects_attached_material_without_file_id -vv
+~~~
 
-### MCP나 별도 AI 프레임워크가 필요한가요?
+`Submission Material` 버튼을 누른다. 누락된 `file_id`, Response `422`, PASS를 확인한다.
 
-필수는 아니다. 저장소 작업 규칙, 테스트 명령, CI 게이트만으로 시작할 수 있다.
-이 프로젝트도 별도 MCP나 런타임 AI SDK를 사용하지 않는다.
+세 사례를 한 문장으로 묶는다.
 
-### 더 현업다운 다음 단계는 무엇인가요?
+> 첫 사례는 숫자 경계, 두 번째는 조건부 입력 형태, 세 번째는 필드 간 의존 관계입니다.
+> 테스트 개수를 늘린 것이 아니라 서로 다른 종류의 업무 위험을 실행 가능하게 만든
+> 것입니다.
 
-AdMarket의 “최종 파트너는 한 회사만 선정” 같은 상태·권한·동시성 정책을 다음
-슬라이스로 선택할 수 있다. 다만 현재 발표에서는 범위를 키우지 않기 위해 제외했다.
+---
 
-## 선택 부록 — mutation testing 20초
+## 37:00-40:00 - 팀 적용과 마무리
 
-> 테스트가 존재한다고 해서 결함을 잘 찾는지는 별개의 질문입니다. mutation
-> testing이 `total != 100`을 `total == 100`으로 바꿨을 때 정상·실패 테스트가
-> 깨지는지 확인할 수 있습니다. mutmut는 AI 기능이 아니라 TDD 뒤에 붙이는 선택적
-> 테스트 품질 감사 도구입니다. native Windows 제약 때문에 라이브에서는 제외했습니다.
+상단 `04 · 적용`을 선택한다.
 
-자세한 내용은 [docs/OPTIONAL_MUTATION.md](docs/OPTIONAL_MUTATION.md)에 있다.
+### 37:00-38:10 - 우리 회사에 TDD가 필요한 이유
 
-## 참고 자료
+화면의 첫 세 칸을 순서대로 짚는다.
 
-- [Kent Beck, Canon TDD](https://newsletter.kentbeck.com/p/canon-tdd)
-- [Kent Beck, Augmented Coding: Beyond the Vibes](https://newsletter.kentbeck.com/p/augmented-coding-beyond-the-vibes)
-- [Kent Beck BPlusTree3 CLAUDE.md](https://github.com/KentBeck/BPlusTree3/blob/ca80e4d85a99cd0af2effe717f709d43e80403bc/rust/docs/CLAUDE.md)
-- [딩코딩코 해설·재현 영상, 2:17부터](https://www.youtube.com/watch?v=AAd8taPTyTM&t=137s)
-- [FastAPI 공식 Testing 문서](https://fastapi.tiangolo.com/tutorial/testing/)
-- [Pydantic validators 공식 문서](https://docs.pydantic.dev/latest/concepts/validators/)
-- [pytest 공식 문서](https://docs.pytest.org/en/stable/)
-- [uv 공식 프로젝트 가이드](https://docs.astral.sh/uv/guides/projects/)
+1. **멀티레포 구조:** Frontend·Backend·SSO·결제 등이 별도 Git 저장소이므로, 변경한
+   저장소의 기대 동작과 연결 계약을 테스트로 고정할 필요가 있다.
+2. **숨은 데이터 제약:** 기존 DB 데이터, 내부 validator, 상태 조합과 null·중복 같은
+   조건은 코드만 읽을 때보다 실제 입력에서 오류로 드러나는 경우가 많다.
+3. **리팩토링·디버깅:** 오류를 먼저 실패 테스트로 재현하면 원인 범위를 좁히고, 수정 뒤
+   같은 오류가 다시 생기지 않는지도 확인할 수 있다.
+
+> 이것은 기존 구조나 기존 테스트를 평가하는 이야기가 아닙니다. 운영에서 반복 확인하기
+> 어려운 위험 중, 코드와 테스트로 재현할 수 있는 부분을 먼저 잡자는 제안입니다.
+
+### 38:10-39:05 - TDD를 과하게 기대하면 안 되는 부분
+
+화면의 두 번째 세 칸을 짚는다.
+
+1. TDD가 멀티레포의 배포 순서, 버전, 권한 연결까지 자동으로 해결하지는 않는다.
+2. 운영 DB 데이터, 네트워크, 외부 서비스 문제는 integration·E2E·모니터링이 함께 필요하다.
+3. 단순 DTO나 framework 동작까지 모두 Test-first로 만들 필요는 없다.
+
+> 그래서 테스트 수나 Coverage 숫자를 목표로 삼지 않습니다. 데이터 제약, 업무 규칙,
+> 오류 재현, 리팩토링처럼 실패 비용이 큰 지점부터 적용하는 것이 현실적입니다.
+
+### 39:05-40:00 - Closing
+
+`Closing` 영역으로 이동해 기존 마무리 문장을 읽는다.
+
+---
+
+## 질문 대응
+
+### 우리 회사 구조는 모노레포인가요?
+
+아니다. 하나의 상위 폴더에 여러 프로젝트가 있어도 각 프로젝트가 독립된 `.git`을 가지면
+멀티레포 또는 Polyrepo다. 모노레포는 하나의 Git 저장소 안에 여러 애플리케이션이나
+패키지가 함께 있는 구조다. 저장소 구성만으로 마이크로서비스 여부를 판단하지는 않는다.
+
+### 기존 AdMarket 테스트가 부족하다는 발표인가요?
+
+아니다. 이미 unit·integration·e2e·harness가 서로 다른 위험을 보호한다. 이 발표는
+기존 테스트를 평가하지 않고 AI가 변경에 맞는 테스트를 찾고 실행하도록 연결하는 방법을
+설명한다.
+
+### 프론트와 백엔드가 같은 테스트를 관리해야 하나요?
+
+아니다. 프론트는 화면 상태와 사용자 흐름, 백엔드는 업무 규칙과 API·DB 경계를 각자
+소유한다. 공유하는 것은 테스트 파일이 아니라 API 계약, 핵심 시나리오와 실행 결과다.
+
+### 테스트도 AI가 쓰면 AI가 자기 답을 채점하는 것 아닌가요?
+
+AI가 테스트 초안을 만들 수 있지만 업무 정답과 기대 결과는 사람이 승인한다. 테스트가
+제품 코드보다 먼저 유효한 이유로 실패하는지 확인하고, 그 테스트를 약화하지 않은 채
+GREEN을 만들어야 한다.
+
+### 세 API가 실제 운영 endpoint인가요?
+
+아니다. 실제 command validator의 업무 규칙을 가져왔지만 DB·인증·저장·알림을 제외하고
+검증만 분리한 발표용 FastAPI endpoint다. 운영 코드의 버그를 주장하는 데모도 아니다.
+
+### 왜 브라우저 버튼과 pytest 결과가 둘 다 필요한가요?
+
+pytest는 자동화된 완료 증거를 만들고, 브라우저 버튼은 같은 규칙이 HTTP 요청과 응답에서
+어떻게 보이는지 청중이 직접 확인하게 한다. 두 방식은 목적이 다르다.
+
+### 왜 실습 프로젝트는 Python만 사용하나요?
+
+발표자가 직접 설명할 수 있는 Backend 규칙을 짧은 시간에 재현하기 위해서다. Frontend는
+Jest·Vitest·Playwright의 테스트 역할을 설명하고 같은 품질 기준을 어떻게 공유할지에
+집중한다.
+
+### 영상이 회사 네트워크에서 재생되지 않으면 어떻게 하나요?
+
+각 탭의 `YouTube 원본 전체 영상에서 보기` 링크를 사용한다. 발표 전에 세 구간을 새 탭으로
+열어 두고, 네트워크 제한이 있으면 영상별 한글 요점과 연결 문장만 읽어도 흐름이 이어진다.
+
+### 왜 GitHub 공식 영상을 추가했나요?
+
+앞의 두 영상은 모두 Kent Beck의 질문과 경험이다. GitHub 공식 사례를 추가해 특정 인물의
+방식에만 기대지 않고, 실제 AI 코딩 도구가 안내하는 요구조건 → 테스트 → RED → 구현 →
+GREEN 순서와 비교한다.
+
+### TDAD 연구 결과를 회사에서도 그대로 기대할 수 있나요?
+
+그렇게 주장하지 않는다. 특정 모델과 제한된 benchmark 결과다. 발표에서는 절차 지시만
+주는 것보다 영향받는 테스트 정보를 함께 제공하자는 설계 힌트로만 사용한다.
