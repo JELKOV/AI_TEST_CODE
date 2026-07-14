@@ -1,0 +1,26 @@
+[project]
+name = "ai-tdd-fastapi-demo"
+version = "0.1.0"
+description = "A lightweight FastAPI project developed with an AI-assisted TDD workflow"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi==0.117.1",
+  "uvicorn[standard]==0.36.0",
+]
+
+[dependency-groups]
+dev = [
+  "httpx==0.28.1",
+  "pytest==8.4.2",
+  "ruff==0.15.21",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
