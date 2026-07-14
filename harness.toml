@@ -3,7 +3,6 @@ version = 1
 [documents]
 agreement = "AGENTS.md"
 plan = "plan.md"
-cycle_log = "docs/TDD_CYCLES.md"
 
 [commands]
 focused = ["uv", "run", "pytest", "{focused}", "-vv"]

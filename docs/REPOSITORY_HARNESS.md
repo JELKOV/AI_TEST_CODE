@@ -14,8 +14,7 @@
   → focused 실패 시 중단하고 RED 원인을 사람이 확인
   → 최소 구현 후 같은 명령 재실행
   → focused → full → lint → type 통과
-  → .harness/latest-run.json 확인
-  → docs/TDD_CYCLES.md에 판단과 변경 내용을 요약
+  → .harness/latest-run.json과 diff 확인
 ~~~
 
 ## 파일별 역할
@@ -24,13 +23,12 @@
 | --- | --- | --- |
 | `AGENTS.md` | AI가 따라야 할 TDD 작업 순서와 금지사항을 정의한다. | Codex 작업 지침이지만 품질 명령을 직접 실행하지는 않는다. |
 | `plan.md` | 사람이 승인한 테스트 목록과 현재 진행할 항목을 관리한다. | 사람이 기대 결과를 승인하고 AI가 완료 상태를 갱신한다. |
-| `harness.toml` | 세 문서 경로, 네 품질 게이트와 증거 저장 위치를 선언한다. | `tdd_harness.py`가 읽는다. |
+| `harness.toml` | 두 문서 경로, 네 품질 게이트와 증거 저장 위치를 선언한다. | `tdd_harness.py`가 읽는다. |
 | `scripts/tdd_harness.py` | 구성을 검사하고 품질 게이트를 순서대로 실행한다. | 직접 실행하는 하네스 진입점이다. |
 | `pyproject.toml` | pytest 수집 경로, Ruff와 Pyright의 프로젝트 설정을 제공한다. | 각 도구가 실행될 때 읽는다. |
 | `tests/` | 제품 동작과 발표 화면의 기대 결과를 실행 가능한 테스트로 표현한다. | pytest가 수집하고 실행한다. |
 | `.harness/runs/*.json` | 각 실행의 명령, 종료 코드, 소요 시간과 최종 상태를 저장한다. | `verify` 실행마다 자동 생성하며 Git에는 커밋하지 않는다. |
 | `.harness/latest-run.json` | 가장 최근 실행 결과를 고정된 경로로 제공한다. | `verify`가 매번 갱신한다. |
-| `docs/TDD_CYCLES.md` | RED 원인, 최소 GREEN 변경과 REFACTOR 여부를 사람이 읽을 수 있게 요약한다. | JSON과 diff를 검토한 뒤 AI가 작성하고 사람이 확인한다. |
 
 ## 설정 파일
 
@@ -40,7 +38,6 @@
 [documents]
 agreement = "AGENTS.md"
 plan = "plan.md"
-cycle_log = "docs/TDD_CYCLES.md"
 
 [commands]
 focused = ["uv", "run", "pytest", "{focused}", "-vv"]
@@ -89,7 +86,6 @@ uv run python scripts/tdd_harness.py verify --focused tests/test_contract_budget
 
 - 기계 증거: 실행한 명령, 종료 코드, 소요 시간, 통과 여부
 - 사람의 판단: 업무 기대값, RED가 유효한 이유, 테스트를 약화하지 않았는지, diff의 적절성
-- 사이클 기록: 기계 증거와 사람의 판단을 합친 `docs/TDD_CYCLES.md` 요약
 
 이 경계 때문에 하네스는 테스트 통과를 반복 가능하게 만들지만, 업무 정답 승인이나 코드
 리뷰를 대신하지 않는다.

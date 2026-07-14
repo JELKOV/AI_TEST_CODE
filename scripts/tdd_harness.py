@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any
 
 
-DOCUMENT_KEYS = ("agreement", "plan", "cycle_log")
+DOCUMENT_KEYS = ("agreement", "plan")
 STAGE_KEYS = ("focused", "full", "lint", "type")
 
 

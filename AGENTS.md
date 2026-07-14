@@ -10,7 +10,6 @@
 8. Keep behavioral changes separate from structural changes and never mix them in one step or commit.
 9. Mark a `plan.md` item complete only after the focused test and full suite pass.
 10. Commit only when tests, lint, and type checks are green and the change is one logical unit.
-11. Record the RED, GREEN, and REFACTOR evidence for each cycle in `docs/TDD_CYCLES.md`.
 
 ## 한글 설명
 
@@ -66,20 +65,14 @@
 테스트, lint(코드 형식·기본 오류 검사), type check(타입 검사)가 모두 통과한 뒤에만
 커밋한다. 하나의 커밋에는 하나의 목적이 분명한 변경만 담는다.
 
-### 11번 규칙 — 매 사이클의 RED, GREEN, REFACTOR 증거를 남긴다
-
-각 작업에서 어떤 테스트가 왜 실패했는지(RED), 어떤 최소 변경으로 통과했는지(GREEN),
-어떤 구조 정리를 했는지(REFACTOR)를 기록한다. 나중에 변경 이유와 검증 결과를 다시
-확인할 수 있게 `docs/TDD_CYCLES.md`에 남기는 작업 기록이다.
-
 ## 최소 Repository Harness
 
-- `harness.toml`은 이 작업 규칙, 테스트 계획, 사이클 기록의 경로와 focused·full·lint·type
+- `harness.toml`은 이 작업 규칙, 테스트 계획의 경로와 focused·full·lint·type
   명령을 선언한다.
 - `uv run python scripts/tdd_harness.py check`로 문서와 명령 연결을 확인한다.
 - 테스트 하나를 선택한 뒤 `uv run python scripts/tdd_harness.py verify --focused <pytest-node-id>`를
   실행한다. focused가 실패하면 즉시 중단하고, 통과하면 full·lint·type을 순서대로 실행한다.
 - 모든 실행은 `.harness/runs/`에 JSON으로 남고 마지막 실행은
   `.harness/latest-run.json`에서도 확인한다.
-- JSON은 명령·종료 코드·소요 시간의 기계 증거다. 사람이 업무 기대값과 RED 실패 이유를
-  확인하고, AI가 결과를 `docs/TDD_CYCLES.md`에 요약한다.
+- JSON은 명령·종료 코드·소요 시간의 기계 증거다. 사람이 업무 기대값, RED 실패 이유와
+  실제 diff를 함께 확인한다.
