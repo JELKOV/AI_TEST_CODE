@@ -63,7 +63,7 @@ class ContractBudget(BaseModel):
 
 
 class ContractPaymentTerms(BaseModel):
-    advance_payment_percentage: int = Field(..., ge=0)
+    advance_payment_percentage: int
     interim_payment_percentage: int = Field(..., ge=0)
     final_payment_percentage: int = Field(..., ge=0)
     advance_timing: ContractPaymentTiming

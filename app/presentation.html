@@ -231,10 +231,17 @@
       font-weight: 750;
     }
 
+    .hero-proof-label {
+      margin: 38px 0 12px;
+      color: var(--red);
+      font-size: 0.78rem;
+      font-weight: 850;
+    }
+
     .hero-proof {
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
-      margin-top: 48px;
+      margin-top: 0;
       border-top: 1px solid var(--ink);
       border-bottom: 1px solid var(--ink);
     }
@@ -513,78 +520,6 @@
     .section-dark .section-head > p,
     .section-dark .section-head > .summary-lines {
       color: #aeb6c0;
-    }
-
-    .context-principle {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 24px;
-      padding: 16px 0;
-      border-top: 1px solid var(--line);
-      border-bottom: 1px solid var(--line);
-    }
-
-    .context-principle strong {
-      flex: 0 0 auto;
-      color: var(--red);
-      font-size: 0.82rem;
-    }
-
-    .context-principle p,
-    .context-principle .summary-lines {
-      margin: 0;
-      color: var(--ink-soft);
-      font-size: 0.88rem;
-    }
-
-    .landscape {
-      border-top: 2px solid var(--ink);
-    }
-
-    .landscape-row {
-      display: grid;
-      grid-template-columns: 0.9fr 1fr 1.45fr 1.1fr;
-      gap: 28px;
-      align-items: start;
-      padding: 26px 0;
-      border-bottom: 1px solid var(--line);
-    }
-
-    .project-name strong {
-      display: block;
-      margin-bottom: 5px;
-      font-size: 1.02rem;
-    }
-
-    .project-name span,
-    .landscape-cell span {
-      color: var(--muted);
-      font-size: 0.8rem;
-    }
-
-    .landscape-cell strong {
-      display: block;
-      margin-bottom: 7px;
-      color: var(--ink-soft);
-      font-size: 0.78rem;
-      text-transform: uppercase;
-    }
-
-    .landscape-cell p,
-    .landscape-cell .summary-lines {
-      margin: 0;
-      color: var(--ink-soft);
-      font-size: 0.86rem;
-      line-height: 1.65;
-    }
-
-    .landscape-cell code {
-      display: block;
-      margin-top: 8px;
-      color: var(--blue);
-      font-size: 0.72rem;
-      overflow-wrap: anywhere;
     }
 
     .harness-title {
@@ -1597,14 +1532,6 @@
         border-top: 1px solid var(--line);
       }
 
-      .landscape-row {
-        grid-template-columns: 0.8fr 1fr 1.2fr;
-      }
-
-      .landscape-row .landscape-cell:last-child {
-        grid-column: 2 / -1;
-      }
-
       .harness-flow {
         grid-template-columns: repeat(2, minmax(0, 1fr));
       }
@@ -1758,15 +1685,6 @@
         font-size: 1.55rem;
       }
 
-      .landscape-row {
-        grid-template-columns: 1fr;
-        gap: 18px;
-      }
-
-      .landscape-row .landscape-cell:last-child {
-        grid-column: auto;
-      }
-
       .harness-flow {
         grid-template-columns: 1fr;
       }
@@ -1914,10 +1832,9 @@
         <strong>AI-TDD Harness</strong>
       </a>
       <div class="nav-links">
-        <a href="#company">01 · 테스트 구성</a>
-        <a href="#harness">02 · 작업 흐름</a>
-        <a href="#lab">03 · 실습</a>
-        <a href="#adoption">04 · 적용</a>
+        <a href="#harness">01 · 작업 흐름</a>
+        <a href="#lab">02 · 실습</a>
+        <a href="#adoption">03 · 적용</a>
         <a class="docs-link" href="/docs" target="_blank" rel="noreferrer">OpenAPI</a>
       </div>
     </div>
@@ -1935,18 +1852,19 @@
           <li>Frontend와 Backend는 테스트 파일이 아니라 API 계약과 핵심 시나리오를 공유한다.</li>
           <li>작은 계약 API와 Repository Harness로 이 기준이 실제로 작동하는지 확인한다.</li>
         </ul>
-        <div class="hero-proof" aria-label="발표 핵심 근거">
+        <p class="hero-proof-label">Kent Beck · AI가 잘못된 방향으로 가는 3가지 신호</p>
+        <div class="hero-proof" aria-label="AI 작업 중 사람이 개입해야 할 세 가지 신호">
           <div class="proof-item">
-            <strong>사람이 의도를 승인한다</strong>
-            <span>업무 정답과 경계값은 담당자가 승인한다.</span>
+            <strong>01 · 같은 행동을 반복한다</strong>
+            <span>같은 시도와 실패를 반복하며 진전이 없으면 개입한다.</span>
           </div>
           <div class="proof-item">
-            <strong>AI가 한 단계씩 실행한다</strong>
-            <span>테스트 하나만 실행하고 RED·GREEN을 기록한다.</span>
+            <strong>02 · 요청하지 않은 범위를 구현한다</strong>
+            <span>논리적인 다음 단계여도 승인하지 않은 기능은 범위 밖이다.</span>
           </div>
           <div class="proof-item">
-            <strong>테스트가 완료를 판정한다</strong>
-            <span>focused test와 full gate로 완료를 판정한다.</span>
+            <strong>03 · 테스트를 삭제하거나 우회한다</strong>
+            <span>삭제·비활성화·기대값 변경은 즉시 확인한다.</span>
           </div>
         </div>
       </div>
@@ -2098,93 +2016,11 @@
       </div>
     </section>
 
-    <section class="section" id="company" aria-labelledby="company-title">
-      <div class="container">
-        <div class="section-head">
-          <div>
-            <p class="section-kicker">01 · Frontend / Backend Test Layers</p>
-            <h2 id="company-title">Frontend와 Backend의 <span class="keep-together">테스트 구성</span></h2>
-          </div>
-          <ul class="summary-lines single-line-points">
-            <li>각 영역은 서로 다른 위험을 검증한다.</li>
-            <li>빠른 테스트부터 전체 회귀까지 단계적으로 실행한다.</li>
-          </ul>
-        </div>
-
-        <div class="context-principle">
-          <strong>공통 품질 기준</strong>
-          <ul class="summary-lines single-line-points">
-            <li>테스트 소유권은 각 영역에 둔다.</li>
-            <li><b>API 계약과 핵심 시나리오</b>, 재현 가능한 실행 결과는 함께 공유한다.</li>
-          </ul>
-        </div>
-
-        <div class="landscape" role="table" aria-label="Frontend와 Backend 테스트 구성">
-          <div class="landscape-row" role="row">
-            <div class="project-name" role="cell">
-              <strong>Frontend 테스트</strong>
-              <span>Jest · Vitest · Playwright</span>
-            </div>
-            <div class="landscape-cell" role="cell">
-              <strong>빠른 로직 검증</strong>
-              <ul class="summary-lines compact-lines">
-                <li>상태 계산·데이터 변환을 검증한다.</li>
-                <li>조건 분기를 빠르게 확인한다.</li>
-              </ul>
-            </div>
-            <div class="landscape-cell" role="cell">
-              <strong>브라우저 흐름 검증</strong>
-              <ul class="summary-lines compact-lines">
-                <li>렌더링·버튼·오류 UI를 검증한다.</li>
-                <li>핵심 흐름을 브라우저에서 확인한다.</li>
-              </ul>
-            </div>
-            <div class="landscape-cell" role="cell">
-              <strong>AI 완료 기준</strong>
-              <ul class="summary-lines compact-lines">
-                <li>focused test를 먼저 통과한다.</li>
-                <li>흐름이 바뀌면 Playwright까지 확인한다.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="landscape-row" role="row">
-            <div class="project-name" role="cell">
-              <strong>Backend 테스트</strong>
-              <span>pytest</span>
-            </div>
-            <div class="landscape-cell" role="cell">
-              <strong>업무 규칙 검증</strong>
-              <ul class="summary-lines compact-lines">
-                <li>계산 규칙·입력 경계를 검증한다.</li>
-                <li>상태 전이·권한을 빠르게 확인한다.</li>
-              </ul>
-            </div>
-            <div class="landscape-cell" role="cell">
-              <strong>API와 통합 검증</strong>
-              <ul class="summary-lines compact-lines">
-                <li>상태 코드·응답 계약·DB를 검증한다.</li>
-                <li>e2e와 harness로 전체 흐름을 확인한다.</li>
-              </ul>
-            </div>
-            <div class="landscape-cell" role="cell">
-              <strong>AI 완료 기준</strong>
-              <ul class="summary-lines compact-lines">
-                <li>가까운 unit test부터 통과한다.</li>
-                <li>integration·e2e를 통과한다.</li>
-                <li>harness를 full gate로 확인한다.</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <section class="section section-dark" id="harness" aria-labelledby="harness-title">
       <div class="container">
         <div class="section-head">
           <div>
-            <p class="section-kicker">02 · AI + TDD Workflow</p>
+            <p class="section-kicker">01 · AI + TDD Workflow</p>
             <h2 class="harness-title" id="harness-title">AI와 TDD를 연결하는 실제 작업 순서</h2>
           </div>
           <ul class="summary-lines single-line-points">
@@ -2352,7 +2188,7 @@ PASSED [100%]</pre>
       <div class="container">
         <div class="section-head">
           <div>
-            <p class="section-kicker">03 · Live API Lab</p>
+            <p class="section-kicker">02 · Live API Lab</p>
             <h2 id="lab-title">3 Contract Rule APIs (계약 규칙 API 3개)</h2>
           </div>
           <ul class="summary-lines single-line-points">
@@ -2537,7 +2373,7 @@ PASSED [100%]</pre>
       <div class="container">
         <div class="section-head">
           <div>
-            <p class="section-kicker">04 · Why TDD Here</p>
+            <p class="section-kicker">03 · Why TDD Here</p>
             <h2 id="adoption-title">우리 회사에 TDD가 필요한 이유와 적용 범위</h2>
           </div>
           <ul class="summary-lines single-line-points">

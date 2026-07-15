@@ -35,6 +35,11 @@ def test_presentation_explains_goal_and_test_tradeoffs_without_project_name_in_i
     assert "Mock과 실제 경계" in response.text
     assert "변경 경로와 가까운 테스트를 먼저 찾는다." in response.text
     assert "Frontend와 Backend는 테스트 파일이 아니라" in intro
+    assert "Kent Beck · AI가 잘못된 방향으로 가는 3가지 신호" in intro
+    assert "같은 행동을 반복한다" in intro
+    assert "요청하지 않은 범위를 구현한다" in intro
+    assert "테스트를 삭제하거나 우회한다" in intro
+    assert "삭제·비활성화·기대값 변경" in intro
     assert "AdMarket" not in intro
 
 
@@ -99,29 +104,20 @@ def test_presentation_runs_three_admarket_contract_rule_apis() -> None:
     assert 'data-scenario="material-file"' in response.text
 
 
-def test_chapter_one_groups_company_tests_by_frontend_and_backend() -> None:
+def test_presentation_removes_frontend_backend_test_layers_chapter() -> None:
     with TestClient(create_app()) as client:
         response = client.get("/")
 
-    chapter = response.text.split('id="company"', maxsplit=1)[1].split('id="harness"', maxsplit=1)[
-        0
-    ]
-
-    assert "Frontend 테스트" in chapter
-    assert "Backend 테스트" in chapter
-    assert "Jest · Vitest · Playwright" in chapter
-    assert "<span>pytest</span>" in chapter
-    assert "FastAPI · pytest" not in chapter
-    assert "source-badge" not in chapter
-    assert "API 계약과 핵심 시나리오" in chapter
-    assert "AI 완료 기준" in chapter
-    assert "TVCF Main" not in chapter
-    assert "AdMarket Frontend" not in chapter
-    assert "AdMarket Backend" not in chapter
-    assert "발표자가" not in chapter
-    assert "발표에서의 위치" not in chapter
-    assert "Frontend와 Backend의" in chapter
-    assert "테스트 구성" in chapter
+    assert 'id="company"' not in response.text
+    assert 'href="#company"' not in response.text
+    assert "Frontend / Backend Test Layers" not in response.text
+    assert "Frontend와 Backend의" not in response.text
+    assert "테스트 구성" not in response.text
+    assert "Frontend 테스트" not in response.text
+    assert "Backend 테스트" not in response.text
+    assert "01 · 작업 흐름" in response.text
+    assert "02 · 실습" in response.text
+    assert "03 · 적용" in response.text
     assert 'src="/assets/tvcf-logo.png"' in response.text
 
 
@@ -254,7 +250,7 @@ def test_presentation_has_navigation_brand_and_references() -> None:
         response = client.get("/")
 
     assert 'src="/assets/tvcf-logo.png"' in response.text
-    assert 'href="#company"' in response.text
+    assert 'href="#company"' not in response.text
     assert 'href="#harness"' in response.text
     assert 'href="#lab"' in response.text
     assert 'href="#adoption"' in response.text
@@ -305,7 +301,7 @@ def test_team_adoption_explains_company_tdd_need_limits_and_conclusion() -> None
     )[0]
 
     assert "우리 회사에 TDD가 필요한 이유와 적용 범위" in adoption
-    assert "04 · Why TDD Here" in adoption
+    assert "03 · Why TDD Here" in adoption
     assert "운영 장애를 모두 테스트로 없앨 수는 없다." in adoption
     assert "코드로 재현 가능한 오류는 배포 전에 반복 검증할 수 있다." in adoption
     assert "현재 구조에서 테스트가 효과적인 세 지점" in adoption

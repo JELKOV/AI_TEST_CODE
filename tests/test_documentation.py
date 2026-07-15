@@ -38,3 +38,17 @@ def test_working_agreement_and_docs_do_not_require_manual_cycle_log() -> None:
     for relative_path in current_guides:
         content = (PROJECT_ROOT / relative_path).read_text(encoding="utf-8")
         assert "TDD_CYCLES.md" not in content
+
+
+def test_plan_keeps_only_the_current_test_and_completion_condition() -> None:
+    plan = (PROJECT_ROOT / "plan.md").read_text(encoding="utf-8")
+
+    assert "## Live Demo Current Item" in plan
+    assert "test_rejects_negative_payment_percentage_even_when_sum_is_100" in plan
+    assert "Expected 422 / Actual 200" in plan
+    assert "focused · full · lint · type" in plan
+    assert "Completed History" not in plan
+    assert "Company Context Principle" not in plan
+    assert "Source Mapping" not in plan
+    assert "Next Item Protocol" not in plan
+    assert len(plan.splitlines()) <= 16
